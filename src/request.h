@@ -11,14 +11,22 @@
 #define UZBL_IS_REQUEST_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UZBL_TYPE_REQUEST))
 #define UZBL_REQUEST_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UZBL_TYPE_REQUEST, UzblRequestClass))
 
+typedef struct _UzblRequestPrivate UzblRequestPrivate;
+
 typedef struct {
     SoupRequest parent;
+
+    UzblRequestPrivate *priv;
 } UzblRequest;
 
 typedef struct {
     SoupRequestClass parent;
+    GArray *schemes;
+    GHashTable *handlers;
 } UzblRequestClass;
 
 GType uzbl_request_get_type ();
+
+void uzbl_request_add_handler (const gchar *scheme, const gchar *command);
 
 #endif

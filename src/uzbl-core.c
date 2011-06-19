@@ -911,6 +911,29 @@ void handle_authentication (SoupSession *session, SoupMessage *msg, SoupAuth *au
     }
 }
 
+void
+add_scheme_handler (const gchar *scheme, const gchar *command) {
+    uzbl_request_add_handler (scheme, command);
+    SoupSessionFeature *requester =
+        soup_session_get_feature (uzbl.net.soup_session, SOUP_TYPE_REQUESTER);
+    soup_session_feature_add_feature (requester, UZBL_TYPE_REQUEST);
+}
+
+void
+retrieve_geometry() {
+    int w, h, x, y;
+    GString *buf = g_string_new("");
+
+    gtk_window_get_size(GTK_WINDOW(uzbl.gui.main_window), &w, &h);
+    gtk_window_get_position(GTK_WINDOW(uzbl.gui.main_window), &x, &y);
+
+    g_string_printf(buf, "%dx%d+%d+%d", w, h, x, y);
+
+    if(uzbl.gui.geometry)
+        g_free(uzbl.gui.geometry);
+    uzbl.gui.geometry = g_string_free(buf, FALSE);
+}
+
 /* Set up gtk, gobject, variable defaults and other things that tests and other
  * external applications need to do anyhow */
 void
