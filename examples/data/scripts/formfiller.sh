@@ -8,10 +8,9 @@
 # (empty): if file not available, new; otherwise, load
 #
 
-action=$1
-
 . "$UZBL_UTIL_DIR/uzbl-dir.sh"
 . "$UZBL_UTIL_DIR/editor.sh"
+. "$UZBL_UTIL_DIR/uzbl-util.sh"
 
 mkdir -p "$UZBL_FORMS_DIR" || exit
 
@@ -20,7 +19,11 @@ domain=${domain%%/*}
 
 test "$domain" || exit
 
-file=$UZBL_FORMS_DIR/$domain
+basefile="$UZBL_FORMS_DIR/$domain"
+default_profile="default"
+
+action="$1"
+shift
 
 GenForm ()
 {
@@ -38,24 +41,37 @@ GenForm ()
 
 GetOption ()
 {
-    DMENU_SCHEME=formfiller
-
-    # util/dmenu.sh doesn't handle spaces in DMENU_PROMPT. a proper fix will be
-    # tricky.
-    DMENU_PROMPT="choose_profile"
-    DMENU_LINES=4
+    DMENU_SCHEME="formfiller"
+    DMENU_OPTIONS="xmms vertical placement resize"
+    DMENU_PROMPT="profile"
 
     . "$UZBL_UTIL_DIR/dmenu.sh"
 
-    if [ $(grep -c '^!profile' "$1") -gt 1 ]
-    then sed -n 's/^!profile=//p' "$1" | $DMENU
-    else sed -n 's/^!profile=//p' "$1"
-    fi
-}
+    count=""
 
-ParseProfile ()
-{
-    sed "/^>/d; /^!profile=$1$/,/^!/!d; /^!/d"
+    for x in "$basefile"*; do
+        [ "$x" = "$basefile*" ] && continue
+
+        count="1$count"
+    done
+
+    case "$count" in
+        11*)
+            DMENU_MORE_ARGS=
+            if [ -n "$DMENU_HAS_PLACEMENT" ]; then
+                . "$UZBL_UTIL_DIR/uzbl-window.sh"
+
+                DMENU_MORE_ARGS="$DMENU_PLACE_X $(( $UZBL_WIN_POS_X + 1 )) $DMENU_PLACE_Y $(( $UZBL_WIN_POS_Y + $UZBL_WIN_HEIGHT - 184 )) $DMENU_PLACE_WIDTH $UZBL_WIN_WIDTH"
+            fi
+
+            ls "$basefile"* | sed -e 's!^'"$basefile"'\.!!' | $DMENU $DMENU_MORE_ARGS
+            ;;
+        1)
+            echo "$basefile"*
+            ;;
+        *)
+            ;;
+    esac
 }
 
 ParseFields ()
@@ -108,36 +124,68 @@ ParseFields ()
 
 New ()
 {
-    { echo '!profile=NAME_THIS_PROFILE'
-      GenForm | sed 's/^!/\\!/'
-      echo '!'
-    } >> "$file"
+    $file="$1"
+
+    if [ -z "$file" ]; then
+        profile="$default_profile"
+
+        while true; do
+            profile="$( Xdialog --stdout --title "New profile for $domain" --inputbox "Profile name:" 0 0 "$profile" )"
+            exitstatus="$?"
+
+            [ "$exitstatus" -eq 0 ] || exit "$exitstatus"
+
+            [ -z "$profile" ] && profile="$default_profile"
+
+            file="$basefile.$profile"
+
+            if [ -e "$file" ]; then
+                Xdialog --title "Profile already exists!" --yesno "Overwrite?" 0 0
+                exitstatus="$?"
+
+                [ "$exitstatus" -eq 0 ] && break
+            else
+                break
+            fi
+        done
+    fi
+
+    GenForm > "$file"
     chmod 600 "$file"
     $UZBL_EDITOR "$file"
 }
 
-Edit ()
-    if [ -e "$file" ]
-    then $UZBL_EDITOR "$file"
-    else New
+Edit () {
+    profile="$( GetOption )"
+
+    [ -z "$profile" ] && profile="$default_profile"
+
+    file="$basefile.$profile"
+
+    if [ -e "$file" ]; then
+        $UZBL_EDITOR "$file"
+    else
+        New "$option"
     fi
+}
 
 Load ()
 {
-    test -e "$file" || exit
+    if [ -z "$file" ]; then
+        profile="$( GetOption )"
 
-    option=$(GetOption "$file")
+        [ -z "$profile" ] && profile="$default_profile"
 
-    case $option in *[!a-zA-Z0-9_-]*) exit 1; esac
+        file="$basefile.$profile"
+    fi
 
-    ParseProfile $option < "$file" \
-    | ParseFields \
+    ParseFields < "$file" \
     > "$UZBL_FIFO"
 }
 
 Once ()
 {
-    tmpfile=/tmp/${0##*/}-$$-tmpfile
+    tmpfile="/tmp/${0##*/}-$$-tmpfile"
     trap 'rm -f "$tmpfile"' EXIT
 
     GenForm > "$tmpfile"
@@ -150,7 +198,7 @@ Once ()
     > "$UZBL_FIFO"
 }
 
-case $action in
+case "$action" in
     new) New; Load ;;
     edit) Edit; Load ;;
     load) Load ;;
