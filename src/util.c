@@ -161,6 +161,11 @@ find_existing_file(const gchar* path_list) {
     return result;
 }
 
+guint
+argv_argc(const GArray *a) {
+    return a->len;
+}
+
 gchar*
 argv_idx(const GArray *a, const guint idx) {
     return g_array_index(a, gchar*, idx);

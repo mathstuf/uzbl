@@ -483,6 +483,119 @@ run_external_js (WebKitWebView * web_view, GArray *argv, GString *result) {
     }
 }
 
+#ifdef USE_WEBKIT2
+void
+search_clear(WebKitWebView *page, GArray *argv, GString *result) {
+    (void) argv;
+    (void) result;
+
+    WebKitFindController *findc = webkit_web_view_get_find_controller (page);
+
+    webkit_find_controller_search_finish (findc);
+    uzbl.state.searchopts = WEBKIT_FIND_OPTIONS_NONE;
+}
+
+void
+search_forward_text (WebKitWebView *page, GArray *argv, GString *result) {
+    (void) result;
+
+    const gchar *needle = argv_idx (argv, 0);
+    const gchar *flags = (argv_argc (argv) > 1) ? argv_idx (argv, 1) : "";
+    WebKitFindOptions opts = WEBKIT_FIND_OPTIONS_NONE;
+    size_t len = strlen (flags);
+    size_t i;
+    gboolean inherit = FALSE;
+
+    int wrap = 0;
+    int camel_case = 0;
+    int icase = 0;
+    int reverse = 0;
+    int word_starts = 0;
+
+    if (needle && (*needle == '+')) {
+        opts = uzbl.state.searchopts;
+        inherit = TRUE;
+    }
+
+    for (i = 0; i < len; ++i) {
+        switch (flags[i]) {
+        /* Wrap flag */
+        case 'a': wrap = 1;  break;
+        case 'A': wrap = -1; break;
+        /* Camel Case flag */
+        case 'c': camel_case = 1;  break;
+        case 'C': camel_case = -1; break;
+        /* Case insensitive flag */
+        case 'i': icase = 1;  break;
+        case 'I': icase = -1; break;
+        /* Reverse flag */
+        case 'r': reverse = 1;  break;
+        case 'R': reverse = -1; break;
+        /* word_starts flag */
+        case 'w': word_starts = 1;  break;
+        case 'W': word_starts = -1; break;
+        default: break;
+        }
+    }
+
+#define SET_OPT_FLAG (var, def, flag) \
+    if ((var ? var : (inherit ? 0 : def)) if ((var ? var : def) < 0) opts &= ~flag; else opts |= flag
+
+    SET_OPT_FLAG (wrap,         1, WEBKIT_FIND_OPTIONS_WRAP_AROUND);
+    SET_OPT_FLAG (camel_case,  -1, WEBKIT_FIND_OPTIONS_TREAT_MEDIAL_CAPITAL_AS_WORD_START);
+    SET_OPT_FLAG (icase,       -1, WEBKIT_FIND_OPTIONS_CASE_INSENSITIVE);
+    SET_OPT_FLAG (reverse,     -1, WEBKIT_FIND_OPTIONS_BACKWARDS);
+    SET_OPT_FLAG (word_starts, -1, WEBKIT_FIND_OPTIONS_AT_WORD_STARTS);
+
+#undef SET_OPT_FLAG
+
+    if ((needle && *needle) || (opts != uzbl.state.searchopts)) {
+        webkit_find_controller_search (findc, *needle ? needle : uzbl.state.searchtx, opts, uzbl.);
+    }
+}
+
+void
+search_reverse_text(WebKitWebView *page, GArray *argv, GString *result) {
+    (void) result;
+
+    const gchar *flags = NULL;
+    size_t len;
+    gchar *new_flags;
+    gboolean reverse = FALSE;
+    size_t i;
+
+/*
+ *    switch (argv_argc (argv)) {
+ *    case 0:
+ *        g_array_append_val (argv, strdup (""));
+ *    case 1:
+ *        g_array_append_val (argv, g_strdup ("r");
+ *        break;
+ *    default:
+ *        flags = argv_idx (argv, 1);
+ *        new_flags = (gchar *)malloc ((len + 1 + 1) * sizeof gchar);
+ *
+ *        for (i = 0; i < len; ++i)
+ *            if (flags[i] == 'r')
+ *                reverse = TRUE;
+ *            else if (flags[i] == 'R')
+ *                reverse = FALSE;
+ *
+ *        strncpy (new_flags, flags, len);
+ *        [> Invert the 'r' flag. <]
+ *        new_flags[len] = reverse ? 'R' : 'r';
+ *        new_flags[len + 1] = '\0';
+ *
+ *        argv->data[1] = new_flags;
+ *        break;
+ *    }
+ */
+
+    g_free (flags);
+
+    search_forward_text (page, argv, result);
+}
+#else
 void
 search_clear(WebKitWebView *page, GArray *argv, GString *result) {
     (void) argv; (void) result;
@@ -502,6 +615,7 @@ search_reverse_text(WebKitWebView *page, GArray *argv, GString *result) {
     (void) result;
     search_text(page, argv_idx(argv, 0), FALSE);
 }
+#endif
 
 void
 dehilight(WebKitWebView *page, GArray *argv, GString *result) {

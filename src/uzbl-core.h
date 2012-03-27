@@ -107,6 +107,9 @@ typedef struct {
     gchar*          last_selected_url;
     gchar*          executable_path;
     gchar*          searchtx;
+#ifdef USE_WEBKIT2
+    WebKitFindOptions searchopts;
+#endif
     gboolean        verbose;
     gboolean        embed;
     GdkEventButton* last_button;

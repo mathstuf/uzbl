@@ -444,6 +444,7 @@ eval_js(WebKitWebView * web_view, const gchar *script, GString *result, const ch
     JSStringRelease(js_file);
 }
 
+#ifndef USE_WEBKIT2
 void
 search_text (WebKitWebView *page, const gchar *key, const gboolean forward) {
     if (key && (*key != '\0')) {
@@ -462,6 +463,7 @@ search_text (WebKitWebView *page, const gchar *key, const gboolean forward) {
         webkit_web_view_search_text (page, uzbl.state.searchtx, FALSE, forward, TRUE);
     }
 }
+#endif
 
 static void
 sharg_append(GArray *a, const gchar *str) {
