@@ -278,6 +278,13 @@ clean_up(void) {
         uzbl.comm.socket_path = NULL;
     }
 
+    if (uzbl.gui.menu_items) {
+        while (g_ptr_array_remove_fast(uzbl.gui.menu_items, ))
+            ;
+        g_ptr_array_free(uzbl.gui.menu_items, TRUE);
+        uzbl.gui.menu_items = NULL;
+    }
+
     if (uzbl.comm.connect_chan) {
         g_ptr_array_foreach(uzbl.comm.connect_chan, (GFunc*)remove_socket_from_array, NULL);
         g_ptr_array_free(uzbl.comm.connect_chan, TRUE);
