@@ -277,6 +277,12 @@ clean_up(void) {
         g_free(uzbl.comm.socket_path);
         uzbl.comm.socket_path = NULL;
     }
+
+    if (uzbl.comm.connect_chan) {
+        g_ptr_array_foreach(uzbl.comm.connect_chan, (GFunc*)remove_socket_from_array, NULL);
+        g_ptr_array_free(uzbl.comm.connect_chan, TRUE);
+        uzbl.comm.connect_chan = NULL;
+    }
 }
 
 gint
