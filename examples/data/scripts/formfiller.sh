@@ -132,7 +132,7 @@ Load ()
 
     ParseProfile $option < "$file" \
     | ParseFields \
-    | uzbl_control
+    | uzbl_send
 }
 
 Once ()
