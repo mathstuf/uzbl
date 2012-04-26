@@ -28,7 +28,7 @@ case "$result" in
 
         case "$uriaction" in
             set)
-                uzbl_control 'uri '"$uri"'\n' | sed -e 's/@/\\@/'
+                print 'uri '"$uri"'\n' | sed -e 's/@/\\@/' | uzbl_send
                 ;;
             clipboard)
                 print "$uri" | xclip
