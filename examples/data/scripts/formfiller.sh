@@ -147,7 +147,7 @@ Once ()
 
     test -e "$tmpfile" &&
     ParseFields < "$tmpfile" \
-    | uzbl_control
+    | uzbl_send
 }
 
 case $action in
