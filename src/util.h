@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 enum xdg_type {
-  XDG_CONFIG, XDG_DATA, XDG_CACHE
+  XDG_CONFIG, XDG_DATA, XDG_CACHE, XDG_RUNTIME
 };
 
 void        ensure_xdg_vars(void);

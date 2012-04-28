@@ -16,6 +16,7 @@ const XDG_Var XDG[] = {
     { "XDG_DATA_HOME",   "~/.local/share" },
     { "XDG_CACHE_HOME",  "~/.cache" },
     { "XDG_CONFIG_DIRS", "/etc/xdg" },
+    { "XDG_RUNTIME_DIR", "/tmp" },
     { "XDG_DATA_DIRS",   "/usr/local/share/:/usr/share/" },
 };
 
@@ -65,7 +66,7 @@ find_xdg_file (enum xdg_type type, const char* basename) {
 
     /* the file doesn't exist in the expected directory.
      * check if it exists in one of the system-wide directories. */
-    char *system_dirs = get_xdg_var(3 + type);
+    char *system_dirs = get_xdg_var(4 + type);
     path = find_existing_file2(system_dirs, basename);
     g_free(system_dirs);
 
