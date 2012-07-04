@@ -3,8 +3,13 @@
  ** (c) 2009 by Robert Manea et al.
 */
 
+#ifdef USE_WEBKIT2
+void
+mouse_target_cb (WebKitWebView *page, WebKitHitTestResult *hit_test_result, guint modifiers, gpointer data);
+#else
 void
 link_hover_cb (WebKitWebView* page, const gchar* title, const gchar* link, gpointer data);
+#endif
 
 void
 title_change_cb (WebKitWebView* web_view, GParamSpec param_spec);
@@ -12,11 +17,21 @@ title_change_cb (WebKitWebView* web_view, GParamSpec param_spec);
 void
 progress_change_cb (WebKitWebView* web_view, GParamSpec param_spec);
 
+#ifdef USE_WEBKIT2
+void
+load_change_cb (WebKitWebView* web_view, WebKitLoadEvent status, gpointer data);
+#else
 void
 load_status_change_cb (WebKitWebView* web_view, GParamSpec param_spec);
+#endif
 
+#ifdef USE_WEBKIT2
+gboolean
+load_failed_cb (WebKitWebView* page, WebKitLoadEvent ev, gchar *uri, gpointer web_err, gpointer ud);
+#else
 gboolean
 load_error_cb (WebKitWebView* page, WebKitWebFrame* frame, gchar *uri, gpointer web_err, gpointer ud);
+#endif
 
 void
 destroy_cb (GtkWidget* widget, gpointer data);
@@ -33,6 +48,11 @@ key_release_cb (GtkWidget* window, GdkEventKey* event);
 gboolean
 motion_notify_cb(GtkWidget* window, GdkEventMotion* event, gpointer user_data);
 
+#ifdef USE_WEBKIT2
+gboolean
+decide_policy_cb (WebKitWebView *web_view, WebKitPolicyDecision *decision,
+        WebKitPolicyDecisionType decision_type, gpointer user_data);
+#else
 gboolean
 navigation_decision_cb (WebKitWebView *web_view, WebKitWebFrame *frame,
         WebKitNetworkRequest *request, WebKitWebNavigationAction *navigation_action,
@@ -51,11 +71,17 @@ void
 request_starting_cb(WebKitWebView *web_view, WebKitWebFrame *frame, WebKitWebResource *resource,
         WebKitNetworkRequest *request, WebKitNetworkResponse *response, gpointer user_data);
 
+gboolean
+download_cb (WebKitWebView *web_view, WebKitDownload *download, gpointer user_data);
+#endif
+
 /*@null@*/ WebKitWebView*
 create_web_view_cb (WebKitWebView  *web_view, WebKitWebFrame *frame, gpointer user_data);
 
-gboolean
-download_cb (WebKitWebView *web_view, WebKitDownload *download, gpointer user_data);
+#if WEBKIT_CHECK_VERSION (1, 9, 4)
+void
+file_chooser_cb(WebKitWebView *v, WebKitFileChooserRequest *rq, void *c);
+#endif
 
 #if WEBKIT_CHECK_VERSION (1, 9, 0)
 void

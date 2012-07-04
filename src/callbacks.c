@@ -12,9 +12,17 @@
 
 #include <gdk/gdk.h>
 
+#ifdef USE_WEBKIT2
+void
+mouse_target_cb (WebKitWebView *page, WebKitHitTestResult *hit_test_result, guint modifiers, gpointer data) {
+    (void) page; (void) modifiers; (void) data;
+
+    const gchar* link = webkit_hit_test_result_get_link_uri (hit_test_result);
+#else
 void
 link_hover_cb (WebKitWebView *page, const gchar *title, const gchar *link, gpointer data) {
     (void) page; (void) title; (void) data;
+#endif
     State *s = &uzbl.state;
 
     if(s->last_selected_url)
@@ -58,14 +66,26 @@ progress_change_cb (WebKitWebView* web_view, GParamSpec param_spec) {
     send_event(LOAD_PROGRESS, NULL, TYPE_INT, progress, NULL);
 }
 
+#ifdef USE_WEBKIT2
+void
+load_change_cb (WebKitWebView* web_view, WebKitLoadEvent status, gpointer data) {
+    (void) data;
+#else
 void
 load_status_change_cb (WebKitWebView* web_view, GParamSpec param_spec) {
     (void) param_spec;
 
-    WebKitWebFrame  *frame;
     WebKitLoadStatus status = webkit_web_view_get_load_status(web_view);
+#endif
+
+    WebKitWebFrame  *frame;
     switch(status) {
+#ifdef USE_WEBKIT2
+        case WEBKIT_LOAD_STARTED:
+        case WEBKIT_LOAD_REDIRECTED:
+#else
         case WEBKIT_LOAD_PROVISIONAL:
+#endif
             send_event(LOAD_START,  NULL, TYPE_STR, uzbl.state.uri ? uzbl.state.uri : "", NULL);
             break;
         case WEBKIT_LOAD_COMMITTED:
@@ -75,16 +95,24 @@ load_status_change_cb (WebKitWebView* web_view, GParamSpec param_spec) {
         case WEBKIT_LOAD_FINISHED:
             send_event(LOAD_FINISH, NULL, TYPE_STR, uzbl.state.uri, NULL);
             break;
+#ifndef USE_WEBKIT2
         case WEBKIT_LOAD_FIRST_VISUALLY_NON_EMPTY_LAYOUT:
             break; /* we don't do anything with this (yet) */
         case WEBKIT_LOAD_FAILED:
             break; /* load_error_cb will handle this case */
+#endif
     }
 }
 
+#ifdef USE_WEBKIT2
+gboolean
+load_failed_cb (WebKitWebView* page, WebKitLoadEvent ev, gchar *uri, gpointer web_err, gpointer ud) {
+    (void) page; (void) ev; (void) ud;
+#else
 gboolean
 load_error_cb (WebKitWebView* page, WebKitWebFrame* frame, gchar *uri, gpointer web_err, gpointer ud) {
     (void) page; (void) frame; (void) ud;
+#endif
     GError *err = web_err;
 
     send_event (LOAD_ERROR, NULL,
@@ -249,6 +277,34 @@ motion_notify_cb(GtkWidget* window, GdkEventMotion* event, gpointer user_data) {
     return FALSE;
 }
 
+#ifdef USE_WEBKIT2
+gboolean
+decide_policy_cb (WebKitWebView *web_view, WebKitPolicyDecision *decision,
+        WebKitPolicyDecisionType decision_type, gpointer user_data) {
+    gboolean ret = FALSE;
+    WebKitNavigationPolicyDecision *navigation_decision = NULL;
+    WebKitResponsePolicyDecision *response = NULL;
+
+    /* TODO: Implement. */
+
+    switch (type) {
+        case WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION:
+            navigation_decision = WEBKIT_NAVIGATION_POLICY_DECISION (decision);
+            break;
+        case WEBKIT_POLICY_DECISION_TYPE_NEW_WINDOW_ACTION:
+            navigation_decision = WEBKIT_NAVIGATION_POLICY_DECISION (decision);
+            break;
+        case WEBKIT_POLICY_DECISION_TYPE_RESPONSE:
+            response = WEBKIT_RESPONSE_POLICY_DECISION (decision);
+            break;
+        default:
+            ret = FALSE;
+            break;
+    }
+
+    return ret;
+}
+#else
 gboolean
 navigation_decision_cb (WebKitWebView *web_view, WebKitWebFrame *frame,
         WebKitNetworkRequest *request, WebKitWebNavigationAction *navigation_action,
@@ -343,15 +399,44 @@ mime_policy_cb (WebKitWebView *web_view, WebKitWebFrame *frame,
 }
 
 void
+download_progress_cb(WebKitDownload *download, GParamSpec *pspec, gpointer user_data) {
+    (void) pspec; (void) user_data;
+
+    gdouble progress;
+    g_object_get(download, "progress", &progress, NULL);
+
+    const gchar *dest_uri = webkit_download_get_destination_uri(download);
+    const gchar *dest_path = dest_uri + strlen("file://");
+
+    send_event(DOWNLOAD_PROGRESS, NULL,
+        TYPE_STR, dest_path,
+        TYPE_FLOAT, progress,
+        NULL);
+}
+#endif
+
+#ifdef USE_WEBKIT2
+void
+request_starting_cb(WebKitWebView *web_view, WebKitWebResource *resource,
+        WebKitURIRequest *request, gpointer user_data) {
+#else
+void
 request_starting_cb(WebKitWebView *web_view, WebKitWebFrame *frame, WebKitWebResource *resource,
         WebKitNetworkRequest *request, WebKitNetworkResponse *response, gpointer user_data) {
-    (void) web_view;
     (void) frame;
-    (void) resource;
     (void) response;
+#endif
+    (void) web_view;
+    (void) resource;
     (void) user_data;
 
-    const gchar *uri = webkit_network_request_get_uri (request);
+    const gchar *uri =
+#ifdef USE_WEBKIT2
+        webkit_uri_request_get_uri (request)
+#else
+        webkit_network_request_get_uri (request)
+#endif
+    ;
     SoupMessage *message = webkit_network_request_get_message (request);
 
     if (message) {
@@ -414,22 +499,6 @@ create_web_view_cb (WebKitWebView  *web_view, WebKitWebFrame *frame, gpointer us
     g_object_connect (new_view, "signal::notify::uri",
                            G_CALLBACK(create_web_view_js_cb), NULL, NULL);
     return new_view;
-}
-
-void
-download_progress_cb(WebKitDownload *download, GParamSpec *pspec, gpointer user_data) {
-    (void) pspec; (void) user_data;
-
-    gdouble progress;
-    g_object_get(download, "progress", &progress, NULL);
-
-    const gchar *dest_uri = webkit_download_get_destination_uri(download);
-    const gchar *dest_path = dest_uri + strlen("file://");
-
-    send_event(DOWNLOAD_PROGRESS, NULL,
-        TYPE_STR, dest_path,
-        TYPE_FLOAT, progress,
-        NULL);
 }
 
 void
@@ -609,11 +678,19 @@ run_menu_command(GtkWidget *menu, MenuItem *mi) {
     }
 }
 
+#if WEBKIT_CHECK_VERSION (1, 9, 4)
+void
+file_chooser_cb(WebKitWebView *v, WebKitFileChooserRequest *rq, void *c)
+{
+    /* TODO: Implement? */
+    return FALSE;
+}
+#endif
 
 #if WEBKIT_CHECK_VERSION (1, 9, 0)
 void
 context_menu_cb(WebKitWebView *v, GtkWidget *m, WebKitHitTestResult *ht, gboolean keyboard, void *c) {
-    // TODO
+    /* TODO: Implement. */
     /*
      * static gboolean context_menu_cb (WebKitWebView       *webView,
      *                                  GtkWidget           *default_menu,

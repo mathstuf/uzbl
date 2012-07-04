@@ -771,17 +771,45 @@ create_scrolled_win() {
       "signal::button-release-event",                 (GCallback)button_release_cb,       NULL,
       "signal::motion-notify-event",                  (GCallback)motion_notify_cb,        NULL,
       "signal::notify::title",                        (GCallback)title_change_cb,         NULL,
+#ifdef USE_WEBKIT2
+      "signal::notify::estimated-load-progress",      (GCallback)progress_change_cb,      NULL,
+#else
       "signal::notify::progress",                     (GCallback)progress_change_cb,      NULL,
+#endif
+#ifdef USE_WEBKIT2
+      "signal::load-changed",                         (GCallback)load_change_cb,          NULL,
+#else
       "signal::notify::load-status",                  (GCallback)load_status_change_cb,   NULL,
+#endif
       "signal::notify::uri",                          (GCallback)uri_change_cb,           NULL,
+#ifdef USE_WEBKIT2
+      "signal::load-failed",                          (GCallback)load_failed_cb,          NULL,
+#else
       "signal::load-error",                           (GCallback)load_error_cb,           NULL,
+#endif
+#ifdef USE_WEBKIT2
+      "signal::mouse-target-changed",                 (GCallback)mouse_target_cb,         NULL,
+#else
       "signal::hovering-over-link",                   (GCallback)link_hover_cb,           NULL,
+#endif
+#ifdef USE_WEBKIT2
+      "signal::decide-policy",                        (GCallback)decide_policy_cb,        NULL,
+#else
       "signal::navigation-policy-decision-requested", (GCallback)navigation_decision_cb,  NULL,
       "signal::new-window-policy-decision-requested", (GCallback)new_window_cb,           NULL,
-      "signal::download-requested",                   (GCallback)download_cb,             NULL,
-      "signal::create-web-view",                      (GCallback)create_web_view_cb,      NULL,
       "signal::mime-type-policy-decision-requested",  (GCallback)mime_policy_cb,          NULL,
+      "signal::download-requested",                   (GCallback)download_cb,             NULL,
+#endif
+      /* TODO */
+      "signal::create-web-view",                      (GCallback)create_web_view_cb,      NULL,
+#ifdef USE_WEBKIT2
+      "signal::resource-load-started",                (GCallback)resource_load_started_cb,NULL,
+#else
       "signal::resource-request-starting",            (GCallback)request_starting_cb,     NULL,
+#endif
+#if WEBKIT_CHECK_VERSION (1, 9, 4)
+      "signal::run-file-chooser",                     (GCallback)file_chooser_cb,         NULL,
+#endif
 #if WEBKIT_CHECK_VERSION (1, 9, 0)
       "signal::context-menu",                         (GCallback)context_menu_cb,         NULL,
 #else
@@ -789,6 +817,7 @@ create_scrolled_win() {
 #endif
       "signal::focus-in-event",                       (GCallback)focus_cb,                NULL,
       "signal::focus-out-event",                      (GCallback)focus_cb,                NULL,
+      /* TODO */
       "signal::window-object-cleared",                (GCallback)window_object_cleared_cb,NULL,
       NULL);
 }
