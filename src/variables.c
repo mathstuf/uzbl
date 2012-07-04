@@ -434,51 +434,82 @@ EXPOSE_WEBKIT_VIEW_SETTINGS(sans_serif_font_family,       "sans_serif-font-famil
 EXPOSE_WEBKIT_VIEW_SETTINGS(serif_font_family,            "serif-font-family",                         gchar *)
 EXPOSE_WEBKIT_VIEW_SETTINGS(cursive_font_family,          "cursive-font-family",                       gchar *)
 EXPOSE_WEBKIT_VIEW_SETTINGS(fantasy_font_family,          "fantasy-font-family",                       gchar *)
+#ifdef USE_WEBKIT2
+EXPOSE_WEBKIT_VIEW_SETTINGS(pictograph_font_family        "pictograph-font-family",                    gchar *)
+#endif
 
 /* Font size settings */
 EXPOSE_WEBKIT_VIEW_SETTINGS(minimum_font_size,            "minimum-font-size",                         int)
+#ifndef USE_WEBKIT2
+EXPOSE_WEBKIT_VIEW_SETTINGS(minimum_logical_font_size,    "minimum-logical-font-size",                 int)
+#endif
 EXPOSE_WEBKIT_VIEW_SETTINGS(font_size,                    "default-font-size",                         int)
 EXPOSE_WEBKIT_VIEW_SETTINGS(monospace_size,               "default-monospace-font-size",               int)
 
 /* Text settings */
-EXPOSE_WEBKIT_VIEW_SETTINGS(default_encoding,             "default-encoding",                          gchar *)
+EXPOSE_WEBKIT_VIEW_SETTINGS(default_encoding,
+#ifdef USE_WEBKIT2
+                                                          "default-charset",
+#else
+                                                          "default-encoding",
+#endif
+                                                                                                       gchar *)
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(enforce_96_dpi,               "enforce-96-dpi",                            int)
+#endif
 
 /* Feature settings */
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_plugins,               "enable-plugins",                            int)
-EXPOSE_WEBKIT_VIEW_SETTINGS(enable_java_applet,           "enable-java-applet",                        int)
+EXPOSE_WEBKIT_VIEW_SETTINGS(enable_java_applet,
+#ifdef USE_WEBKIT2
+                                                          "enable-java",
+#else
+                                                          "enable-java-applet",
+#endif
+                                                                                                       int)
 #if WEBKIT_CHECK_VERSION (1, 3, 14)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_webgl,                 "enable-webgl",                              int)
 #endif
 #if WEBKIT_CHECK_VERSION (1, 7, 5)
-EXPOSE_WEBKIT_VIEW_SETTINGS(enable_webaudio,             "enable-webaudio",                           int)
+EXPOSE_WEBKIT_VIEW_SETTINGS(enable_webaudio,              "enable-webaudio",                           int)
 #endif
+#ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 7, 90) // Documentation says 1.7.5, but it's not there.
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_3d_acceleration,       "enable-accelerated-compositing",            int)
+#endif
 #endif
 
 /* HTML5 Database settings */
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_database,              "enable-html5-database",                     int)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_local_storage,         "enable-html5-local-storage",                int)
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_pagecache,             "enable-page-cache",                         int)
+#endif
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_offline_app_cache,     "enable-offline-web-application-cache",      int)
+#ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 5, 2)
 EXPOSE_WEBKIT_VIEW_SETTINGS(local_storage_path,           "html5-local-storage-database-path",         gchar *)
+#endif
 #endif
 
 /* Security settings */
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_private_webkit,        "enable-private-browsing",                   int)
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_universal_file_access, "enable-universal-access-from-file-uris",    int)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_cross_file_access,     "enable-file-access-from-file-uris",         int)
+#endif
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_hyperlink_auditing,    "enable-hyperlink-auditing",                 int)
 #if WEBKIT_CHECK_VERSION (1, 3, 13)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_dns_prefetch,          "enable-dns-prefetching",                    int)
 #endif
+EXPOSE_WEBKIT_VIEW_SETTINGS(enable_xss_auditor,           "enable-xss-auditor",                        int)
 
 /* Display settings */
 EXPOSE_WEBKIT_VIEW_SETTINGS(zoom_step,                    "zoom-step",                                 float)
 EXPOSE_WEBKIT_VIEW_SETTINGS(caret_browsing,               "enable-caret-browsing",                     int)
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(auto_resize_window,           "auto-resize-window",                        int)
+#endif
 #if WEBKIT_CHECK_VERSION (1, 3, 5)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_frame_flattening,     "enable-frame-flattening",                   int)
 #endif
@@ -490,14 +521,30 @@ EXPOSE_WEBKIT_VIEW_SETTINGS(enable_fullscreen,            "enable-fullscreen",  
 EXPOSE_WEBKIT_VIEW_SETTINGS(zoom_text_only,               "zoom-text-only",                            int)
 #endif
 #endif
+#ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 9, 0)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_smooth_scrolling,      "enable-smooth-scrolling",                   int)
 #endif
+#endif
+#ifdef USE_WEBKIT2
+#if WEBKIT_CHECK_VERSION (1, 9, 4)
+EXPOSE_WEBKIT_VIEW_SETTINGS(allow_modal_dialogs,          "allow-modal-dialogs",                       int)
+EXPOSE_WEBKIT_VIEW_SETTINGS(draw_compositing_indicators,  "draw-compositing-indicators",               int)
+#endif
+#endif
 
 /* Javascript settings */
-EXPOSE_WEBKIT_VIEW_SETTINGS(enable_scripts,               "enable-scripts",                            int)
+EXPOSE_WEBKIT_VIEW_SETTINGS(enable_scripts,
+#ifdef USE_WEBKIT2
+                                                          "enable-javascript",
+#else
+                                                          "enable-scripts",
+#endif
+                                                                                                       int)
 EXPOSE_WEBKIT_VIEW_SETTINGS(javascript_windows,           "javascript-can-open-windows-automatically", int)
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(javascript_dom_paste,         "enable-dom-paste",                          int)
+#endif
 #if WEBKIT_CHECK_VERSION (1, 3, 0)
 EXPOSE_WEBKIT_VIEW_SETTINGS(javascript_clipboard,         "javascript-can-access-clipboard",           int)
 #endif
@@ -510,26 +557,53 @@ EXPOSE_WEBKIT_VIEW_SETTINGS(require_click_to_play,        "media-playback-requir
 
 /* Image settings */
 EXPOSE_WEBKIT_VIEW_SETTINGS(autoload_images,              "auto-load-images",                          int)
+#ifdef USE_WEBKIT2
+EXPOSE_WEBKIT_VIEW_SETTINGS(always_load_icons,            "load-icons-ignoring-image-load-setting",    int)
+#endif
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(autoshrink_images,            "auto-shrink-images",                        int)
+#endif
 
 /* Spell checking settings */
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_spellcheck,            "enable-spell-checking",                     int)
 EXPOSE_WEBKIT_VIEW_SETTINGS(spellcheck_languages,         "spell-checking-languages",                  gchar *)
+#endif
 
 /* Form settings */
-EXPOSE_WEBKIT_VIEW_SETTINGS(resizable_text_areas,         "resizable-text-areas",                      int)
+EXPOSE_WEBKIT_VIEW_SETTINGS(resizable_text_areas,
+#ifdef USE_WEBKIT2
+                                                          "enable-resizable-text-areas",
+#else
+                                                          "resizable-text-areas",
+#endif
+                                                                                                       int)
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_spatial_navigation,    "enable-spatial-navigation",                 int)
 EXPOSE_WEBKIT_VIEW_SETTINGS(editing_behavior,             "editing-behavior",                          int)
-EXPOSE_WEBKIT_VIEW_SETTINGS(enable_tab_cycle,             "tab-key-cycles-through-elements",           int)
+#endif
+EXPOSE_WEBKIT_VIEW_SETTINGS(enable_tab_cycle,
+#ifdef USE_WEBKIT2
+                                               s,         "enable-tabs-to-links",
+#else
+                                                          "tab-key-cycles-through-elements",
+#endif
+                                                                                                       int)
 
 /* Customization */
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(stylesheet_uri,               "user-stylesheet-uri",                       gchar *)
+#endif
+#ifndef USE_WEBKIT2
 #if !WEBKIT_CHECK_VERSION (1, 9, 0)
 EXPOSE_WEBKIT_VIEW_SETTINGS(default_context_menu,         "enable-default-context-menu",               int)
 #endif
+#endif
 
 /* Hacks */
+#ifndef USE_WEBKIT2
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_site_workarounds,      "enable-site-specific-quirks",               int)
+#endif
 
 /* Printing settings */
 EXPOSE_WEBKIT_VIEW_SETTINGS(print_bg,                     "print-backgrounds",                         int)
@@ -774,7 +848,9 @@ set_useragent(const gchar *useragent) {
 
         g_object_set(G_OBJECT(uzbl.net.soup_session), SOUP_SESSION_USER_AGENT,
             uzbl.net.useragent, NULL);
+#ifndef USE_WEBKIT2
         g_object_set(view_settings(), "user-agent", uzbl.net.useragent, NULL);
+#endif
     }
 }
 
@@ -895,14 +971,22 @@ const struct var_name_to_ptr_t {
     { "serif_font_family",      PTR_V_STR_GETSET(serif_font_family)},
     { "cursive_font_family",    PTR_V_STR_GETSET(cursive_font_family)},
     { "fantasy_font_family",    PTR_V_STR_GETSET(fantasy_font_family)},
+#ifdef USE_WEBKIT2
+    { "pictograph_font_family", PTR_V_STR_GETSET(pictograph_font_family)},
+#endif
     /* Font size settings */
     { "minimum_font_size",      PTR_V_INT_GETSET(minimum_font_size)},
+#ifndef USE_WEBKIT2
+    { "minimum_logical_font_size",PTR_V_INT_GETSET(minimum_logical_font_size)},
+#endif
     { "font_size",              PTR_V_INT_GETSET(font_size)},
     { "monospace_size",         PTR_V_INT_GETSET(monospace_size)},
     /* Text settings */
     { "default_encoding",       PTR_V_STR_GETSET(default_encoding)},
     { "current_encoding",       PTR_V_STR_GETSET(current_encoding)},
+#ifndef USE_WEBKIT2
     { "enforce_96_dpi",         PTR_V_INT_GETSET(enforce_96_dpi)},
+#endif
     /* Feature settings */
     { "enable_plugins",         PTR_V_INT_GETSET(enable_plugins)},
     { "enable_java_applet",     PTR_V_INT_GETSET(enable_java_applet)},
@@ -910,27 +994,38 @@ const struct var_name_to_ptr_t {
     { "enable_webgl",           PTR_V_INT_GETSET(enable_webgl)},
 #endif
 #if WEBKIT_CHECK_VERSION (1, 7, 5)
-    { "enable_webaudio",           PTR_V_INT_GETSET(enable_webaudio)},
+    { "enable_webaudio",        PTR_V_INT_GETSET(enable_webaudio)},
 #endif
+#ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 7, 90) // Documentation says 1.7.5, but it's not there.
     { "enable_3d_acceleration", PTR_V_INT_GETSET(enable_3d_acceleration)},
+#endif
 #endif
     /* HTML5 Database settings */
     { "enable_database",        PTR_V_INT_GETSET(enable_database)},
     { "enable_local_storage",   PTR_V_INT_GETSET(enable_local_storage)},
+#ifndef USE_WEBKIT2
     { "enable_pagecache",       PTR_V_INT_GETSET(enable_pagecache)},
+#endif
     { "enable_offline_app_cache", PTR_V_INT_GETSET(enable_offline_app_cache)},
+#ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 5, 2)
     { "local_storage_path",     PTR_V_STR_GETSET(local_storage_path)},
 #endif
+#endif
     /* Security settings */
     { "enable_private",         PTR_V_INT_GETSET(enable_private)},
+#ifndef USE_WEBKIT2
     { "enable_universal_file_access", PTR_V_INT_GETSET(enable_universal_file_access)},
     { "enable_cross_file_access", PTR_V_INT_GETSET(enable_cross_file_access)},
+#endif
     { "enable_hyperlink_auditing", PTR_V_INT_GETSET(enable_hyperlink_auditing)},
     { "cookie_policy",          PTR_V_INT_GETSET(cookie_policy)},
 #if WEBKIT_CHECK_VERSION (1, 3, 13)
     { "enable_dns_prefetch",    PTR_V_INT_GETSET(enable_dns_prefetch)},
+#endif
+#ifdef USE_WEBKIT2
+    { "enable_xss_auditor",     PTR_V_INT_GETSET(enable_xss_auditor)},
 #endif
     /* Display settings */
     { "zoom_level",             PTR_V_FLOAT_GETSET(zoom_level)},
@@ -939,7 +1034,9 @@ const struct var_name_to_ptr_t {
     { "zoom_type",              PTR_V_INT_GETSET(zoom_type)},
 #endif
     { "caret_browsing",         PTR_V_INT_GETSET(caret_browsing)},
+#ifndef USE_WEBKIT2
     { "auto_resize_window",     PTR_V_INT_GETSET(auto_resize_window)},
+#endif
 #if WEBKIT_CHECK_VERSION (1, 3, 5)
     { "enable_frame_flattening", PTR_V_INT_GETSET(enable_frame_flattening)},
 #endif
@@ -951,13 +1048,23 @@ const struct var_name_to_ptr_t {
     { "zoom_text_only",         PTR_V_INT_GETSET(zoom_text_only)},
 #endif
 #endif
+#ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 9, 0)
     { "enable_smooth_scrolling",PTR_V_INT_GETSET(enable_smooth_scrolling)},
+#endif
+#endif
+#ifdef USE_WEBKIT2
+#if WEBKIT_CHECK_VERSION (1, 9, 4)
+    { "allow_modal_dialogs",    PTR_V_INT_GETSET(allow_modal_dialogs)},
+    { "draw_compositing_indicators",PTR_V_INT_GETSET(draw_compositing_indicators)},
+#endif
 #endif
     /* Javascript settings */
     { "enable_scripts",         PTR_V_INT_GETSET(enable_scripts)},
     { "javascript_windows",     PTR_V_INT_GETSET(javascript_windows)},
+#ifndef USE_WEBKIT2
     { "javascript_dom_paste",   PTR_V_INT_GETSET(javascript_dom_paste)},
+#endif
 #if WEBKIT_CHECK_VERSION (1, 3, 0)
     { "javascript_clipboard",   PTR_V_INT_GETSET(javascript_clipboard)},
 #endif
@@ -968,24 +1075,37 @@ const struct var_name_to_ptr_t {
 #endif
     /* Image settings */
     { "autoload_images",        PTR_V_INT_GETSET(autoload_images)},
+#ifdef USE_WEBKIT2
+    { "always_load_icons",      PTR_V_INT_GETSET(always_load_icons)},
+#endif
+#ifndef USE_WEBKIT2
     { "autoshrink_images",      PTR_V_INT_GETSET(autoshrink_images)},
+#endif
     /* Spell checking settings */
+#ifndef USE_WEBKIT2
     { "enable_spellcheck",      PTR_V_INT_GETSET(enable_spellcheck)},
     { "spellcheck_languages",   PTR_V_STR_GETSET(spellcheck_languages)},
+#endif
     /* Form settings */
     { "resizable_text_areas",   PTR_V_INT_GETSET(resizable_text_areas)},
+#ifndef USE_WEBKIT2
     { "enable_spatial_navigation", PTR_V_INT_GETSET(enable_spatial_navigation)},
     { "editing_behavior",       PTR_V_INT_GETSET(editing_behavior)},
+#endif
     { "enable_tab_cycle",       PTR_V_INT_GETSET(enable_tab_cycle)},
     /* Customization */
+#ifndef USE_WEBKIT2
     { "stylesheet_uri",         PTR_V_STR_GETSET(stylesheet_uri)},
-#if WEBKIT_CHECK_VERSION (1, 9, 0)
+#endif
+#if WEBKIT_CHECK_VERSION (1, 9, 0) || defined(USE_WEBKIT2)
     { "default_context_menu",   PTR_V_INT(uzbl.gui.custom_context_menu,         1,   NULL)},
 #else
     { "default_context_menu",   PTR_V_INT_GETSET(default_context_menu)},
 #endif
     /* Hacks */
+#ifndef USE_WEBKIT2
     { "enable_site_workarounds", PTR_V_INT_GETSET(enable_site_workarounds)},
+#endif
     /* Printing settings */
     { "print_backgrounds",      PTR_V_INT_GETSET(print_bg)},
 
