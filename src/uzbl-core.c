@@ -821,6 +821,11 @@ create_scrolled_win() {
       "signal::focus-out-event",                      (GCallback)focus_cb,                NULL,
       /* TODO */
       "signal::window-object-cleared",                (GCallback)window_object_cleared_cb,NULL,
+#ifdef USE_WEBKIT2
+#if WEBKIT_CHECK_VERSION (1, 9, 6)
+      "signal::submit-form",                          (GCallback)submit_form_cb,          NULL,
+#endif
+#endif
       NULL);
 }
 

@@ -110,6 +110,13 @@ void
 window_object_cleared_cb(WebKitWebView *webview, WebKitWebFrame *frame,
         JSGlobalContextRef *context, JSObjectRef *object);
 
+#ifdef USE_WEBKIT2
+#if WEBKIT_CHECK_VERSION (1, 9, 6)
+void
+submit_form_cb(WebKitWebView *webview, WebKitFormSubmissionRequest *request);
+#endif
+#endif
+
 #if WEBKIT_CHECK_VERSION (1, 3, 13)
 void
 dom_focus_cb(WebKitDOMEventTarget *target, WebKitDOMEvent *event, gpointer user_data);
