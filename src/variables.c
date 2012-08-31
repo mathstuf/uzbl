@@ -482,7 +482,7 @@ EXPOSE_WEBKIT_VIEW_SETTINGS(enable_3d_acceleration,       "enable-accelerated-co
 /* HTML5 Database settings */
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_database,              "enable-html5-database",                     int)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_local_storage,         "enable-html5-local-storage",                int)
-#ifndef USE_WEBKIT2
+#if !defined(USE_WEBKIT2) || WEBKIT_CHECK_VERSION(1, 9, 5)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_pagecache,             "enable-page-cache",                         int)
 #endif
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_offline_app_cache,     "enable-offline-web-application-cache",      int)
@@ -601,7 +601,7 @@ EXPOSE_WEBKIT_VIEW_SETTINGS(default_context_menu,         "enable-default-contex
 #endif
 
 /* Hacks */
-#ifndef USE_WEBKIT2
+#if !defined(USE_WEBKIT2) || WEBKIT_CHECK_VERSION(1, 9, 5)
 EXPOSE_WEBKIT_VIEW_SETTINGS(enable_site_workarounds,      "enable-site-specific-quirks",               int)
 #endif
 
@@ -1004,7 +1004,7 @@ const struct var_name_to_ptr_t {
     /* HTML5 Database settings */
     { "enable_database",        PTR_V_INT_GETSET(enable_database)},
     { "enable_local_storage",   PTR_V_INT_GETSET(enable_local_storage)},
-#ifndef USE_WEBKIT2
+#if !defined(USE_WEBKIT2) || WEBKIT_CHECK_VERSION(1, 9, 5)
     { "enable_pagecache",       PTR_V_INT_GETSET(enable_pagecache)},
 #endif
     { "enable_offline_app_cache", PTR_V_INT_GETSET(enable_offline_app_cache)},
@@ -1103,7 +1103,7 @@ const struct var_name_to_ptr_t {
     { "default_context_menu",   PTR_V_INT_GETSET(default_context_menu)},
 #endif
     /* Hacks */
-#ifndef USE_WEBKIT2
+#if !defined(USE_WEBKIT2) || WEBKIT_CHECK_VERSION(1, 9, 5)
     { "enable_site_workarounds", PTR_V_INT_GETSET(enable_site_workarounds)},
 #endif
     /* Printing settings */
