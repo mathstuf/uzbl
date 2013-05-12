@@ -7,6 +7,8 @@
 
 void
 uzbl_js_init ();
+void
+uzbl_js_init_shared_context ();
 
 JSObjectRef
 uzbl_js_object (JSContextRef ctx, const gchar *prop);

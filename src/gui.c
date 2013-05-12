@@ -3,6 +3,7 @@
 #include "commands.h"
 #include "events.h"
 #include "io.h"
+#include "js.h"
 #include "menu.h"
 #include "status-bar.h"
 #include "type.h"
@@ -1326,6 +1327,7 @@ send_load_status (WebKitLoadStatus status, const gchar *uri)
 #endif
     case WEBKIT_LOAD_COMMITTED:
         event = LOAD_COMMIT;
+        uzbl_js_init_shared_context ();
         break;
     case WEBKIT_LOAD_FINISHED:
 #ifdef USE_WEBKIT2
