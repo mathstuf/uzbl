@@ -2324,6 +2324,15 @@ IMPLEMENT_COMMAND (js)
         JSGlobalContextRetain (jsctx);
     } else if (!g_strcmp0 (context, "clean")) {
         jsctx = JSGlobalContextCreate (NULL);
+    } else if (!g_strcmp0 (context, "shared")) {
+        jsctx = uzbl.state.sharedjscontext;
+
+        if (!jsctx) {
+            uzbl_debug ("The shared context is not accessible\n");
+            return;
+        }
+
+        JSGlobalContextRetain (jsctx);
 #ifndef USE_WEBKIT2
     } else if (!g_strcmp0 (context, "frame")) {
         WebKitWebFrame *frame = webkit_web_view_get_focused_frame (uzbl.gui.web_view);

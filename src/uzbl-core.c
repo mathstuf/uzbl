@@ -396,6 +396,10 @@ clean_up ()
         JSGlobalContextRelease (uzbl.state.jscontext);
     }
 
+    if (uzbl.state.sharedjscontext) {
+        JSGlobalContextRelease (uzbl.state.sharedjscontext);
+    }
+
     if (uzbl.state.executable_path) {
         g_free (uzbl.state.executable_path);
         uzbl.state.executable_path = NULL;
