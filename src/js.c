@@ -36,22 +36,24 @@ uzbl_js_init_shared_context ()
     JSObjectRef webkit_object = JSContextGetGlobalObject (webkit_ctx);
     JSObjectRef shared_object = JSContextGetGlobalObject (uzbl.state.sharedjscontext);
 
-    JSPropertyNameArrayRef props = JSObjectCopyPropertyNames (webkit_ctx, webkit_object);
-    size_t nprop = JSPropertyNameArrayGetCount (props);
-    size_t i;
-    for (i = 0; i < nprop; ++i) {
-        JSStringRef prop = JSPropertyNameArrayGetNameAtIndex (props, i);
-        gchar *prop_str = uzbl_js_extract_string (prop);
-
-        JSValueRef value = uzbl_js_get (webkit_ctx, webkit_object, prop_str);
-
-        uzbl_js_set (uzbl.state.sharedjscontext,
-            shared_object, prop_str, value,
-            kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete);
-
-        g_free (prop_str);
-    }
-    JSPropertyNameArrayRelease (props);
+/*
+ *    JSPropertyNameArrayRef props = JSObjectCopyPropertyNames (webkit_ctx, webkit_object);
+ *    size_t nprop = JSPropertyNameArrayGetCount (props);
+ *    size_t i;
+ *    for (i = 0; i < nprop; ++i) {
+ *        JSStringRef prop = JSPropertyNameArrayGetNameAtIndex (props, i);
+ *        gchar *prop_str = uzbl_js_extract_string (prop);
+ *
+ *        JSValueRef value = uzbl_js_get (webkit_ctx, webkit_object, prop_str);
+ *
+ *        uzbl_js_set (uzbl.state.sharedjscontext,
+ *            shared_object, prop_str, value,
+ *            kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete);
+ *
+ *        g_free (prop_str);
+ *    }
+ *    JSPropertyNameArrayRelease (props);
+ */
 
     JSObjectSetPrototype (uzbl.state.sharedjscontext,
         shared_object, webkit_object);
