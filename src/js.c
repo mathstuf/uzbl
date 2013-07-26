@@ -5,6 +5,9 @@
 
 /* =========================== PUBLIC API =========================== */
 
+static JSGlobalContextRef
+get_webkit_context ();
+
 void
 uzbl_js_init ()
 {
@@ -18,22 +21,17 @@ uzbl_js_init ()
         kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete);
 }
 
+static void
+init_shared_context ();
+
 void
 uzbl_js_init_shared_context ()
 {
-    JSGlobalContextRef webkit_ctx = NULL;
-#ifdef USE_WEBKIT2
-    webkit_ctx = webkit_web_view_get_javascript_global_context (uzbl.gui.web_view);
-#else
-    WebKitWebFrame *frame = webkit_web_view_get_main_frame (uzbl.gui.web_view);
-    webkit_ctx = webkit_web_frame_get_global_context (frame);
-#endif
-    JSContextGroupRef group = JSContextGetGroup (webkit_ctx);
-
-    if (uzbl.state.sharedjscontext) {
-        JSGlobalContextRelease (uzbl.state.sharedjscontext);
+    if (!uzbl.state.sharedjscontext) {
+        init_shared_context ();
     }
-    uzbl.state.sharedjscontext = JSGlobalContextCreateInGroup (group, NULL);
+
+    JSGlobalContextRef webkit_ctx = get_webkit_context ();
 
     JSObjectRef webkit_object = JSContextGetGlobalObject (webkit_ctx);
     JSObjectRef shared_object = JSContextGetGlobalObject (uzbl.state.sharedjscontext);
@@ -110,4 +108,33 @@ uzbl_js_extract_string (JSStringRef str)
     JSStringGetUTF8CString (str, gstr, max_size);
 
     return gstr;
+}
+
+/* ===================== HELPER IMPLEMENTATIONS ===================== */
+
+JSGlobalContextRef
+get_webkit_context ()
+{
+#ifdef USE_WEBKIT2
+    return webkit_web_view_get_javascript_global_context (uzbl.gui.web_view);
+#else
+    WebKitWebFrame *frame = webkit_web_view_get_main_frame (uzbl.gui.web_view);
+    return webkit_web_frame_get_global_context (frame);
+#endif
+}
+
+void
+init_shared_context ()
+{
+    JSGlobalContextRef webkit_ctx = get_webkit_context ();
+    JSContextGroupRef group = JSContextGetGroup (webkit_ctx);
+
+    uzbl.state.sharedjscontext = JSGlobalContextCreateInGroup (group, NULL);
+
+    JSObjectRef global = JSContextGetGlobalObject (uzbl.state.jscontext);
+    JSObjectRef uzbl_obj = JSObjectMake (uzbl.state.jscontext, NULL, NULL);
+
+    uzbl_js_set (uzbl.state.sharedjscontext,
+        global, "uzbl", uzbl_obj,
+        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete);
 }
