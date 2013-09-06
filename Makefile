@@ -31,16 +31,18 @@ ifeq ($(ENABLE_GTK3),auto)
 ENABLE_GTK3 := $(shell pkg-config --exists gtk+-3.0 && echo yes)
 endif
 
+MIN_WEBKIT_VERSION = 1.8.1
+
 ifeq ($(ENABLE_WEBKIT2),yes)
-REQ_PKGS += 'webkit2gtk-3.0 >= 1.2.4' javascriptcoregtk-3.0
+REQ_PKGS += 'webkit2gtk-3.0 >= $(MIN_WEBKIT_VERSION)' javascriptcoregtk-3.0
 CPPFLAGS += -DUSE_WEBKIT2
 # WebKit2 requires GTK3
 ENABLE_GTK3 := yes
 else
 ifeq ($(ENABLE_GTK3),yes)
-REQ_PKGS += 'webkitgtk-3.0 >= 1.2.4' javascriptcoregtk-3.0
+REQ_PKGS += 'webkitgtk-3.0 >= $(MIN_WEBKIT_VERSION)' javascriptcoregtk-3.0
 else
-REQ_PKGS += 'webkit-1.0 >= 1.2.4' javascriptcoregtk-1.0
+REQ_PKGS += 'webkit-1.0 >= $(MIN_WEBKIT_VERSION)' javascriptcoregtk-1.0
 endif
 endif
 
