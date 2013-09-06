@@ -992,12 +992,10 @@ load_error_cb (WebKitWebView *view, WebKitWebFrame *frame, gchar *uri, gpointer 
     return send_load_error (uri, err);
 }
 
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 static void
 dom_focus_cb (WebKitDOMEventTarget *target, WebKitDOMEvent *event, gpointer data);
 static void
 dom_blur_cb (WebKitDOMEventTarget *target, WebKitDOMEvent *event, gpointer data);
-#endif
 
 void
 window_object_cleared_cb (WebKitWebView *view, WebKitWebFrame *frame,
@@ -1008,16 +1006,12 @@ window_object_cleared_cb (WebKitWebView *view, WebKitWebFrame *frame,
     UZBL_UNUSED (object);
     UZBL_UNUSED (data);
 
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
     /* Take this opportunity to set some callbacks on the DOM. */
     WebKitDOMDocument *document = webkit_web_view_get_dom_document (view);
     webkit_dom_event_target_add_event_listener (WEBKIT_DOM_EVENT_TARGET (document),
         "focus", G_CALLBACK (dom_focus_cb), TRUE, NULL);
     webkit_dom_event_target_add_event_listener (WEBKIT_DOM_EVENT_TARGET (document),
         "blur",  G_CALLBACK (dom_blur_cb), TRUE, NULL);
-#else
-    UZBL_UNUSED (view);
-#endif
 }
 #endif
 
@@ -1662,7 +1656,6 @@ mime_decision (WebKitWebPolicyDecision *decision, const gchar *mime_type, const 
 #endif
 
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 void
 dom_focus_cb (WebKitDOMEventTarget *target, WebKitDOMEvent *event, gpointer data)
 {
@@ -1690,7 +1683,6 @@ dom_blur_cb (WebKitDOMEventTarget *target, WebKitDOMEvent *event, gpointer data)
         TYPE_STR, name,
         NULL);
 }
-#endif
 #endif
 
 static gboolean

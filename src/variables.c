@@ -1052,17 +1052,7 @@ expand_type (const gchar *str)
 #define HAVE_PLUGIN_API
 #endif
 #else
-#if WEBKIT_CHECK_VERSION (1, 3, 8)
 #define HAVE_PLUGIN_API
-#endif
-#endif
-
-#ifdef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 7, 91)
-#define HAVE_ZOOM_TEXT_API
-#endif
-#else
-#define HAVE_ZOOM_TEXT_API
 #endif
 
 /* Abbreviations to help keep the table's width humane. */
@@ -1156,9 +1146,7 @@ DECLARE_GETSET (int, enable_xss_auditing);
 /*DECLARE_GETSET (gchar *, cookie_store);*/
 #endif
 DECLARE_GETSET (gchar *, cookie_policy);
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 DECLARE_GETSET (int, enable_dns_prefetch);
-#endif
 #ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 11, 2)
 DECLARE_GETSET (int, display_insecure_content);
@@ -1185,26 +1173,18 @@ DECLARE_GETSET (gdouble, zoom_level);
 DECLARE_GETTER (gdouble, zoom_step);
 #endif
 DECLARE_SETTER (gdouble, zoom_step);
-#ifdef HAVE_ZOOM_TEXT_API
 DECLARE_GETSET (int, zoom_text_only);
-#endif
 DECLARE_GETSET (int, caret_browsing);
-#if WEBKIT_CHECK_VERSION (1, 3, 5)
 DECLARE_GETSET (int, enable_frame_flattening);
-#endif
 #if WEBKIT_CHECK_VERSION (1, 9, 0)
 DECLARE_GETSET (int, enable_smooth_scrolling);
 #endif
 DECLARE_GETSET (gchar *, page_view_mode);
 #ifndef USE_WEBKIT2
 DECLARE_GETSET (int, transparent);
-#if WEBKIT_CHECK_VERSION (1, 3, 4)
 DECLARE_GETSET (gchar *, window_view_mode);
 #endif
-#endif
-#if WEBKIT_CHECK_VERSION (1, 3, 8)
 DECLARE_GETSET (int, enable_fullscreen);
-#endif
 #ifndef USE_WEBKIT2
 DECLARE_GETSET (int, editable);
 #endif
@@ -1218,9 +1198,7 @@ DECLARE_GETSET (int, javascript_modal_dialogs);
 #ifndef USE_WEBKIT2
 DECLARE_GETSET (int, javascript_dom_paste);
 #endif
-#if WEBKIT_CHECK_VERSION (1, 3, 0)
 DECLARE_GETSET (int, javascript_clipboard);
-#endif
 #ifdef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (2, 1, 1)
 DECLARE_GETSET (int, javascript_console_to_stdout);
@@ -1278,16 +1256,10 @@ DECLARE_GETSET (int, monospace_size);
 /* Feature variables */
 DECLARE_GETSET (int, enable_plugins);
 DECLARE_GETSET (int, enable_java_applet);
-#if WEBKIT_CHECK_VERSION (1, 3, 14)
 DECLARE_GETSET (int, enable_webgl);
-#endif
-#if WEBKIT_CHECK_VERSION (1, 7, 5)
 DECLARE_GETSET (int, enable_webaudio);
-#endif
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 7, 90) /* Documentation says 1.7.5, but it's not there. */
 DECLARE_GETSET (int, enable_3d_acceleration);
-#endif
 #endif
 #ifdef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (2, 1, 1)
@@ -1311,14 +1283,10 @@ DECLARE_GETSET (int, enable_local_storage);
 DECLARE_GETSET (int, enable_pagecache);
 DECLARE_GETSET (int, enable_offline_app_cache);
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 DECLARE_GETSET (unsigned long long, app_cache_size);
-#endif
 DECLARE_GETSET (gchar *, web_database_directory);
 DECLARE_GETSET (unsigned long long, web_database_quota);
-#if WEBKIT_CHECK_VERSION (1, 5, 2)
 DECLARE_GETSET (gchar *, local_storage_path);
-#endif
 #endif
 #ifdef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 11, 92)
@@ -1331,9 +1299,7 @@ DECLARE_SETTER (gchar *, web_extensions_directory);
 DECLARE_GETSET (int, enable_site_workarounds);
 
 /* Constants */
-#if WEBKIT_CHECK_VERSION (1, 3, 17)
 DECLARE_GETTER (gchar *, inspected_uri);
-#endif
 #ifndef USE_WEBKIT2
 DECLARE_GETTER (gchar *, current_encoding);
 #endif
@@ -1342,9 +1308,7 @@ DECLARE_GETTER (gchar *, geometry);
 DECLARE_GETTER (gchar *, plugin_list);
 #endif
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 DECLARE_GETTER (gchar *, app_cache_directory);
-#endif
 #endif
 DECLARE_GETTER (int, WEBKIT_MAJOR);
 DECLARE_GETTER (int, WEBKIT_MINOR);
@@ -1514,9 +1478,7 @@ uzbl_variables_private_new (GHashTable *table)
         { "enable_xss_auditing",          UZBL_V_FUNC (enable_xss_auditing,                    INT)},
 #endif
         { "cookie_policy",                UZBL_V_FUNC (cookie_policy,                          STR)},
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
         { "enable_dns_prefetch",          UZBL_V_FUNC (enable_dns_prefetch,                    INT)},
-#endif
 #ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 11, 2)
         { "display_insecure_content",     UZBL_V_FUNC (display_insecure_content,               INT)},
@@ -1549,26 +1511,18 @@ uzbl_variables_private_new (GHashTable *table)
                                           UZBL_V_FUNC (zoom_step,                              DOUBLE)
 #endif
                                           },
-#ifdef HAVE_ZOOM_TEXT_API
         { "zoom_text_only",               UZBL_V_FUNC (zoom_text_only,                         INT)},
-#endif
         { "caret_browsing",               UZBL_V_FUNC (caret_browsing,                         INT)},
-#if WEBKIT_CHECK_VERSION (1, 3, 5)
         { "enable_frame_flattening",      UZBL_V_FUNC (enable_frame_flattening,                INT)},
-#endif
 #if WEBKIT_CHECK_VERSION (1, 9, 0)
         { "enable_smooth_scrolling",      UZBL_V_FUNC (enable_smooth_scrolling,                INT)},
 #endif
         { "page_view_mode",               UZBL_V_FUNC (page_view_mode,                         STR)},
 #ifndef USE_WEBKIT2
         { "transparent",                  UZBL_V_FUNC (transparent,                            INT)},
-#if WEBKIT_CHECK_VERSION (1, 3, 4)
         { "window_view_mode",             UZBL_V_FUNC (window_view_mode,                       STR)},
 #endif
-#endif
-#if WEBKIT_CHECK_VERSION (1, 3, 8)
         { "enable_fullscreen",            UZBL_V_FUNC (enable_fullscreen,                      INT)},
-#endif
 #ifndef USE_WEBKIT2
         { "editable",                     UZBL_V_FUNC (editable,                               INT)},
 #endif
@@ -1582,9 +1536,7 @@ uzbl_variables_private_new (GHashTable *table)
 #ifndef USE_WEBKIT2
         { "javascript_dom_paste",         UZBL_V_FUNC (javascript_dom_paste,                   INT)},
 #endif
-#if WEBKIT_CHECK_VERSION (1, 3, 0)
         { "javascript_clipboard",         UZBL_V_FUNC (javascript_clipboard,                   INT)},
-#endif
 #ifdef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (2, 1, 1)
         { "javascript_console_to_stdout", UZBL_V_FUNC (javascript_console_to_stdout,           INT)},
@@ -1642,16 +1594,10 @@ uzbl_variables_private_new (GHashTable *table)
         /* Feature variables */
         { "enable_plugins",               UZBL_V_FUNC (enable_plugins,                         INT)},
         { "enable_java_applet",           UZBL_V_FUNC (enable_java_applet,                     INT)},
-#if WEBKIT_CHECK_VERSION (1, 3, 14)
         { "enable_webgl",                 UZBL_V_FUNC (enable_webgl,                           INT)},
-#endif
-#if WEBKIT_CHECK_VERSION (1, 7, 5)
         { "enable_webaudio",              UZBL_V_FUNC (enable_webaudio,                        INT)},
-#endif
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 7, 90) /* Documentation says 1.7.5, but it's not there. */
         { "enable_3d_acceleration",       UZBL_V_FUNC (enable_3d_acceleration,                 INT)},
-#endif
 #endif
 #ifdef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (2, 1, 1)
@@ -1675,14 +1621,10 @@ uzbl_variables_private_new (GHashTable *table)
         { "enable_pagecache",             UZBL_V_FUNC (enable_pagecache,                       INT)},
         { "enable_offline_app_cache",     UZBL_V_FUNC (enable_offline_app_cache,               INT)},
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
         { "app_cache_size",               UZBL_V_FUNC (app_cache_size,                         ULL)},
-#endif
         { "web_database_directory",       UZBL_V_FUNC (web_database_directory,                 STR)},
         { "web_database_quota",           UZBL_V_FUNC (web_database_quota,                     ULL)},
-#if WEBKIT_CHECK_VERSION (1, 5, 2)
         { "local_storage_path",           UZBL_V_FUNC (local_storage_path,                     STR)},
-#endif
 #endif
 #ifdef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 11, 92)
@@ -1695,9 +1637,7 @@ uzbl_variables_private_new (GHashTable *table)
         { "enable_site_workarounds",      UZBL_V_FUNC (enable_site_workarounds,                INT)},
 
         /* Constants */
-#if WEBKIT_CHECK_VERSION (1, 3, 17)
         { "inspected_uri",                UZBL_C_FUNC (inspected_uri,                          STR)},
-#endif
 #ifndef USE_WEBKIT2
         { "current_encoding",             UZBL_C_FUNC (current_encoding,                       STR)},
 #endif
@@ -1706,9 +1646,7 @@ uzbl_variables_private_new (GHashTable *table)
         { "plugin_list",                  UZBL_C_FUNC (plugin_list,                            STR)},
 #endif
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
         { "app_cache_directory",          UZBL_C_FUNC (app_cache_directory,                    STR)},
-#endif
 #endif
         { "uri",                          UZBL_C_STRING (uzbl.state.uri)},
         { "WEBKIT_MAJOR",                 UZBL_C_FUNC (WEBKIT_MAJOR,                           INT)},
@@ -2290,10 +2228,8 @@ CHOICE_GETSET (SoupCookieJarAcceptPolicy, cookie_policy,
 
 #undef cookie_policy_choices
 
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 GOBJECT_GETSET (int, enable_dns_prefetch,
                 webkit_settings (), "enable-dns-prefetching")
-#endif
 
 #ifndef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 11, 2)
@@ -2442,7 +2378,6 @@ IMPLEMENT_SETTER (gdouble, zoom_step)
     return TRUE;
 }
 
-#ifdef HAVE_ZOOM_TEXT_API
 #ifdef USE_WEBKIT2
 GOBJECT_GETSET (int, zoom_text_only,
                 webkit_settings (), "zoom-text-only")
@@ -2460,15 +2395,12 @@ IMPLEMENT_SETTER (int, zoom_text_only)
     return TRUE;
 }
 #endif
-#endif
 
 GOBJECT_GETSET (int, caret_browsing,
                 webkit_settings (), "enable-caret-browsing")
 
-#if WEBKIT_CHECK_VERSION (1, 3, 5)
 GOBJECT_GETSET (int, enable_frame_flattening,
                 webkit_settings (), "enable-frame-flattening")
-#endif
 
 #if WEBKIT_CHECK_VERSION (1, 9, 0)
 GOBJECT_GETSET (int, enable_smooth_scrolling,
@@ -2511,7 +2443,6 @@ CHOICE_GETSET (page_view_mode_t, page_view_mode,
 GOBJECT_GETSET (int, transparent,
                 webkit_view (), "transparent")
 
-#if WEBKIT_CHECK_VERSION (1, 3, 4)
 #define window_view_mode_choices(call)                        \
     call (WEBKIT_WEB_VIEW_VIEW_MODE_WINDOWED, "windowed")     \
     call (WEBKIT_WEB_VIEW_VIEW_MODE_FLOATING, "floating")     \
@@ -2532,12 +2463,9 @@ CHOICE_GETSET (WebKitWebViewViewMode, window_view_mode,
 
 #undef window_view_mode_choices
 #endif
-#endif
 
-#if WEBKIT_CHECK_VERSION (1, 3, 8)
 GOBJECT_GETSET (int, enable_fullscreen,
                 webkit_settings (), "enable-fullscreen")
-#endif
 
 #ifndef USE_WEBKIT2
 GOBJECT_GETSET (int, editable,
@@ -2567,10 +2495,8 @@ GOBJECT_GETSET (int, javascript_dom_paste,
                 webkit_settings (), "enable-dom-paste")
 #endif
 
-#if WEBKIT_CHECK_VERSION (1, 3, 0)
 GOBJECT_GETSET (int, javascript_clipboard,
                 webkit_settings (), "javascript-can-access-clipboard")
-#endif
 
 #ifdef USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (2, 1, 1)
@@ -2802,21 +2728,15 @@ GOBJECT_GETSET (int, enable_java_applet,
                 webkit_settings (), "enable-java-applet")
 #endif
 
-#if WEBKIT_CHECK_VERSION (1, 3, 14)
 GOBJECT_GETSET (int, enable_webgl,
                 webkit_settings (), "enable-webgl")
-#endif
 
-#if WEBKIT_CHECK_VERSION (1, 7, 5)
 GOBJECT_GETSET (int, enable_webaudio,
                 webkit_settings (), "enable-webaudio")
-#endif
 
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 7, 90) /* Documentation says 1.7.5, but it's not there. */
 GOBJECT_GETSET (int, enable_3d_acceleration,
                 webkit_settings (), "enable-accelerated-compositing")
-#endif
 #endif
 
 #ifdef USE_WEBKIT2
@@ -2858,7 +2778,6 @@ GOBJECT_GETSET (int, enable_offline_app_cache,
                 webkit_settings (), "enable-offline-web-application-cache")
 
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 IMPLEMENT_GETTER (unsigned long long, app_cache_size)
 {
     return webkit_application_cache_get_maximum_size ();
@@ -2870,7 +2789,6 @@ IMPLEMENT_SETTER (unsigned long long, app_cache_size)
 
     return TRUE;
 }
-#endif
 
 IMPLEMENT_GETTER (gchar *, web_database_directory)
 {
@@ -2896,10 +2814,8 @@ IMPLEMENT_SETTER (unsigned long long, web_database_quota)
     return TRUE;
 }
 
-#if WEBKIT_CHECK_VERSION (1, 5, 2)
 GOBJECT_GETSET (gchar *, local_storage_path,
                 webkit_settings (), "html5-local-storage-database-path")
-#endif
 #endif
 
 #ifdef USE_WEBKIT2
@@ -2933,12 +2849,10 @@ GOBJECT_GETSET (int, enable_site_workarounds,
                 webkit_settings (), "enable-site-specific-quirks")
 
 /* Constants */
-#if WEBKIT_CHECK_VERSION (1, 3, 17)
 IMPLEMENT_GETTER (gchar *, inspected_uri)
 {
     return g_strdup (webkit_web_inspector_get_inspected_uri (uzbl.gui.inspector));
 }
-#endif
 
 #ifndef USE_WEBKIT2
 IMPLEMENT_GETTER (gchar *, current_encoding)
@@ -3145,12 +3059,10 @@ mimetype_list_append (WebKitWebPluginMIMEType *mimetype, GString *list)
 #endif
 
 #ifndef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 IMPLEMENT_GETTER (gchar *, app_cache_directory)
 {
     return g_strdup (webkit_application_cache_get_database_directory_path ());
 }
-#endif
 #endif
 
 IMPLEMENT_GETTER (int, WEBKIT_MAJOR)

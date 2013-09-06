@@ -534,9 +534,7 @@ parse_command_from_file (const char *cmd)
 #endif
 #define HAVE_SECURITY
 #else
-#if WEBKIT_CHECK_VERSION (1, 3, 8)
 #define HAVE_PLUGIN_API
-#endif
 #if WEBKIT_CHECK_VERSION (1, 11, 1)
 #define HAVE_SECURITY
 #endif
@@ -593,9 +591,7 @@ DECLARE_COMMAND (plugin);
 #endif
 #ifndef USE_WEBKIT2
 DECLARE_COMMAND (remove_all_db);
-#if WEBKIT_CHECK_VERSION (1, 5, 1)
 DECLARE_COMMAND (spell);
-#endif
 #endif
 #ifdef USE_WEBKIT2
 DECLARE_COMMAND (cache);
@@ -685,9 +681,7 @@ builtin_command_table[] = {
 #endif
 #ifndef USE_WEBKIT2
     { "remove_all_db",                  cmd_remove_all_db,            TRUE,  TRUE  },
-#if WEBKIT_CHECK_VERSION (1, 5, 1)
     { "spell",                          cmd_spell,                    TRUE,  TRUE  },
-#endif
 #endif
 #ifdef USE_WEBKIT2
     { "cache",                          cmd_cache,                    TRUE,  TRUE  },
@@ -926,10 +920,10 @@ IMPLEMENT_COMMAND (load)
         const gchar *baseuri = argv_idx (argv, 3);
 
 #ifdef USE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 7, 4) && !WEBKIT_CHECK_VERSION (1, 9, 90)
-        webkit_web_view_replace_content (uzbl.gui.web_view, content, uri, baseuri);
-#else
+#if WEBKIT_CHECK_VERSION (1, 9, 90)
         webkit_web_view_load_alternate_html (uzbl.gui.web_view, content, uri, baseuri);
+#else
+        webkit_web_view_replace_content (uzbl.gui.web_view, content, uri, baseuri);
 #endif
 #else
         WebKitWebFrame *frame = webkit_web_view_get_focused_frame (uzbl.gui.web_view);
@@ -1504,7 +1498,6 @@ IMPLEMENT_COMMAND (remove_all_db)
     webkit_remove_all_web_databases ();
 }
 
-#if WEBKIT_CHECK_VERSION (1, 5, 1)
 IMPLEMENT_COMMAND (spell)
 {
     ARG_CHECK (argv, 1);
@@ -1578,7 +1571,6 @@ IMPLEMENT_COMMAND (spell)
         uzbl_debug ("Unrecognized spell command: %s\n", command);
     }
 }
-#endif
 #endif
 
 #ifdef USE_WEBKIT2
@@ -2316,10 +2308,8 @@ IMPLEMENT_COMMAND (inspector)
         }
 
         webkit_web_inspector_inspect_coordinates (uzbl.gui.inspector, x, y);
-#if WEBKIT_CHECK_VERSION (1, 3, 17)
     } else if (!g_strcmp0 (command, "node")) {
         /* TODO: Implement. */
-#endif
 #endif
     } else {
         uzbl_debug ("Unrecognized inspector command: %s\n", command);
