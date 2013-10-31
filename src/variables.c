@@ -443,7 +443,7 @@ init_js_variables_api ()
 {
     JSObjectRef uzbl_obj = uzbl_js_object (uzbl.state.jscontext, "uzbl");
 
-    static JSClassDefinition
+    static const JSClassDefinition
     variables_class_def = {
         0,                     // version
         kJSClassAttributeNone, // attributes

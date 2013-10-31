@@ -280,7 +280,7 @@ init_js_commands_api ()
     JSObjectRef uzbl_obj = uzbl_js_object (uzbl.state.jscontext, "uzbl");
     JSObjectRef commands_obj = JSObjectMake (uzbl.state.jscontext, NULL, NULL);
 
-    static JSClassDefinition
+    static const JSClassDefinition
     command_class_def = {
         0,                     // version
         kJSClassAttributeNone, // attributes
