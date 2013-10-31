@@ -410,7 +410,7 @@ add_cmd_source (GIOChannel *gio, const gchar *name, GIOFunc callback, gpointer d
     GSource *source = g_io_create_watch (gio, G_IO_IN | G_IO_HUP);
     g_source_set_name (source, name);
 
-    /* Why does casting callback into a GSourceFunc work? GIOFunc takes 3
+    /* XXX: Why does casting callback into a GSourceFunc work? GIOFunc takes 3
      * parameters while GSourceFunc takes 1. However, this is what is done in
      * g_io_add_watch, we just want to attach to a different context. */
     g_source_set_callback (source, (GSourceFunc)callback, data, NULL);

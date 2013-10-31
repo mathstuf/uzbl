@@ -2399,11 +2399,8 @@ IMPLEMENT_COMMAND (js)
             for (i = argv->len; 3 < i; --i) {
                 const gchar *arg = argv_idx (argv, i - 1);
                 gchar *needle = g_strdup_printf ("%%%d", i);
-
                 gchar *new_file_contents = str_replace (needle, arg ? arg : "", script);
-
                 g_free (needle);
-
                 g_free (script);
                 script = new_file_contents;
             }

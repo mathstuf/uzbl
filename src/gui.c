@@ -215,7 +215,7 @@ static gboolean
 load_error_cb (WebKitWebView *view, WebKitWebFrame *frame, gchar *uri, gpointer web_err, gpointer data);
 static void
 window_object_cleared_cb (WebKitWebView *view, WebKitWebFrame *frame,
-        JSGlobalContextRef *context, JSObjectRef *object, gpointer data);
+        JSGlobalContextRef context, JSObjectRef object, gpointer data);
 #endif
 #ifdef USE_WEBKIT2
 static void
@@ -1007,7 +1007,7 @@ dom_blur_cb (WebKitDOMEventTarget *target, WebKitDOMEvent *event, gpointer data)
 
 void
 window_object_cleared_cb (WebKitWebView *view, WebKitWebFrame *frame,
-        JSGlobalContextRef *context, JSObjectRef *object, gpointer data)
+        JSGlobalContextRef context, JSObjectRef object, gpointer data)
 {
     UZBL_UNUSED (frame);
     UZBL_UNUSED (context);
@@ -1020,7 +1020,7 @@ window_object_cleared_cb (WebKitWebView *view, WebKitWebFrame *frame,
     webkit_dom_event_target_add_event_listener (WEBKIT_DOM_EVENT_TARGET (document),
         "focus", G_CALLBACK (dom_focus_cb), TRUE, NULL);
     webkit_dom_event_target_add_event_listener (WEBKIT_DOM_EVENT_TARGET (document),
-        "blur",  G_CALLBACK (dom_blur_cb), TRUE, NULL);
+        "blur",  G_CALLBACK (dom_blur_cb),  TRUE, NULL);
 #else
     UZBL_UNUSED (view);
 #endif
