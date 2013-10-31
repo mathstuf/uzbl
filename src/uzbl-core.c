@@ -134,6 +134,7 @@ uzbl_init (int *argc, char ***argv)
     }
     g_free (pid_str);
 
+    uzbl_em_init ();
     uzbl_io_init ();
     uzbl_js_init ();
     uzbl_variables_init ();
@@ -243,6 +244,7 @@ uzbl_free ()
     uzbl_commands_free ();
     uzbl_variables_free ();
     uzbl_io_free ();
+    uzbl_em_free ();
 }
 
 #ifndef UZBL_LIBRARY

@@ -76,6 +76,7 @@ SOURCES := \
     comm.c \
     commands.c \
     cookie-jar.c \
+    em.c \
     events.c \
     gui.c \
     inspector.c \

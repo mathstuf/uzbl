@@ -59,6 +59,9 @@ typedef struct {
 struct _UzblCommands;
 typedef struct _UzblCommands UzblCommands;
 
+struct _UzblEM;
+typedef struct _UzblEM UzblEM;
+
 struct _UzblGui;
 typedef struct _UzblGui UzblGui;
 
@@ -81,6 +84,7 @@ typedef struct {
     UzblNetwork       net;
 
     UzblCommands     *commands;
+    UzblEM           *em;
     UzblGui          *gui_;
     UzblInspector    *inspector;
     UzblIO           *io;

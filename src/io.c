@@ -1,8 +1,10 @@
 #include "io.h"
 
 #include "commands.h"
+#include "em.h"
 #include "events.h"
 #include "requests.h"
+#include "setup.h"
 #include "type.h"
 #include "util.h"
 #include "variables.h"
@@ -137,20 +139,28 @@ gboolean
 uzbl_io_init_connect_socket (const gchar *socket_path)
 {
     GIOChannel *chan = NULL;
+    const gchar *name = NULL;
 
-    int sockfd = socket (AF_UNIX, SOCK_STREAM, 0);
-    struct sockaddr_un local;
-    local.sun_family = AF_UNIX;
-    strcpy (local.sun_path, socket_path);
-
-    if (!connect (sockfd, (struct sockaddr *)&local, sizeof (local))) {
-        chan = g_io_channel_unix_new (sockfd);
-        if (chan) {
-            g_io_channel_set_encoding (chan, NULL, NULL);
-            add_cmd_source (chan, "Uzbl connect socket",
-                control_client_socket, uzbl.io->connect_sockets);
-            g_ptr_array_add (uzbl.io->connect_sockets, chan);
+    if (!strprefix (socket_path, UZBL_EM_PREFIX)) {
+        chan = uzbl_em_init_plugin (socket_path + strlen (UZBL_EM_PREFIX));
+        name = "Uzbl event manager";
+    } else {
+        int sockfd = socket (AF_UNIX, SOCK_STREAM, 0);
+        struct sockaddr_un local;
+        local.sun_family = AF_UNIX;
+        strncpy (local.sun_path, socket_path, 108);
+        if (!connect (sockfd, (struct sockaddr *)&local, sizeof (local))) {
+            chan = g_io_channel_unix_new (sockfd);
+            name = "Uzbl connect socket";
         }
+    }
+
+    if (chan) {
+        g_io_channel_set_encoding (chan, NULL, NULL);
+        add_cmd_source (chan, name,
+            control_client_socket, uzbl.io->connect_sockets);
+        g_ptr_array_add (uzbl.io->connect_sockets, chan);
+        g_io_channel_unref (chan);
     } else {
         g_warning ("Error connecting to socket: %s", socket_path);
         return FALSE;

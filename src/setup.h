@@ -9,6 +9,13 @@ uzbl_commands_free ();
 void
 uzbl_commands_send_builtin_event ();
 
+#define UZBL_EM_PREFIX "uzbl-em://"
+
+void
+uzbl_em_init ();
+void
+uzbl_em_free ();
+
 void
 uzbl_events_init ();
 void
