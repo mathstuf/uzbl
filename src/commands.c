@@ -2421,11 +2421,11 @@ IMPLEMENT_COMMAND (js)
     JSValueRef js_result = JSEvaluateScript (jsctx, js_script, globalobject, js_file, 0, &js_exc);
 
     if (result && js_result && !JSValueIsUndefined (jsctx, js_result)) {
-        gchar *result_utf8 = uzbl_js_to_string (jsctx, js_result);
-
-        g_string_append (result, result_utf8);
-
-        g_free (result_utf8);
+        if (kJSTypeString == JSValueGetType (jsctx, js_result)) {
+            gchar *result_utf8 = uzbl_js_to_string (jsctx, js_result);
+            g_string_append (result, result_utf8);
+            g_free (result_utf8);
+        }
     } else if (js_exc) {
         JSObjectRef exc = JSValueToObject (jsctx, js_exc, NULL);
 
