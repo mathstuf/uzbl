@@ -87,6 +87,7 @@ SOURCES := \
     util.c \
     uzbl-core.c \
     variables.c \
+    xdg.c \
     3p/async-queue-source/rb-async-queue-watch.c
 
 HEADERS := \
@@ -108,6 +109,7 @@ HEADERS := \
     uzbl-core.h \
     variables.h \
     webkit.h \
+    xdg.h \
     3p/async-queue-source/rb-async-queue-watch.h
 
 ifneq ($(ENABLE_WEBKIT2),yes)

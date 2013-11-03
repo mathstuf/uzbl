@@ -41,6 +41,7 @@
 #include "type.h"
 #include "util.h"
 #include "variables.h"
+#include "xdg.h"
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -50,8 +51,6 @@
 
 UzblCore uzbl;
 
-static void
-ensure_xdg_vars ();
 static void
 read_config_file (const gchar *file);
 
@@ -145,7 +144,7 @@ uzbl_init (int *argc, char ***argv)
     uzbl.state.started = TRUE;
 
     /* XDG */
-    ensure_xdg_vars ();
+    uzbl_xdg_init ();
 
     /* Connect to the event manager(s). */
     gchar **name = connect_socket_names;
@@ -301,52 +300,6 @@ main_exit:
 
 /* ===================== HELPER IMPLEMENTATIONS ===================== */
 
-typedef enum {
-    XDG_BEGIN,
-
-    XDG_DATA = XDG_BEGIN,
-    XDG_CONFIG,
-    XDG_CACHE,
-
-    XDG_END
-} XdgDir;
-
-static gchar *
-get_xdg_var (gboolean user, XdgDir type);
-
-typedef struct {
-    const gchar *environment;
-    const gchar *default_value;
-} XdgVar;
-
-static const XdgVar
-xdg_user[] = {
-    { "XDG_DATA_HOME",   "~/.local/share" },
-    { "XDG_CONFIG_HOME", "~/.config" },
-    { "XDG_CACHE_HOME",  "~/.cache" }
-};
-
-void
-ensure_xdg_vars ()
-{
-    XdgDir i;
-
-    for (i = XDG_DATA; i < XDG_END; ++i) {
-        gchar *xdg = get_xdg_var (TRUE, i);
-
-        if (!xdg) {
-            continue;
-        }
-
-        g_setenv (xdg_user[i].environment, xdg, FALSE);
-
-        g_free (xdg);
-    }
-}
-
-static gchar *
-find_xdg_file (XdgDir dir, const char* basename);
-
 void
 read_config_file (const gchar *file)
 {
@@ -354,7 +307,7 @@ read_config_file (const gchar *file)
         file = NULL;
         uzbl_io_init_stdin ();
     } else if (!file) {
-        file = find_xdg_file (XDG_CONFIG, "/uzbl/config");
+        file = uzbl_xdg_find (UZBL_XDG_CONFIG, "/uzbl/config");
     }
 
     /* Load config file, if any. */
@@ -380,61 +333,5 @@ clean_up ()
     }
 
     uzbl_free ();
-}
-#endif
-
-static const XdgVar
-xdg_system[] = {
-    { "XDG_CONFIG_DIRS", "/etc/xdg" },
-    { "XDG_DATA_DIRS",   "/usr/local/share/:/usr/share/" }
-};
-
-gchar *
-get_xdg_var (gboolean user, XdgDir dir)
-{
-    XdgVar const *vars = user ? xdg_user : xdg_system;
-    XdgVar xdg = vars[dir];
-
-    const gchar *actual_value = getenv (xdg.environment);
-
-    if (!actual_value || !actual_value[0]) {
-        actual_value = xdg.default_value;
-    }
-
-    if (!actual_value) {
-        return NULL;
-    }
-
-    /* TODO: Handle home == NULL. */
-    const gchar *home = getenv ("HOME");
-
-    return str_replace("~", home, actual_value);
-}
-
-#ifndef UZBL_LIBRARY
-gchar *
-find_xdg_file (XdgDir dir, const char* basename)
-{
-    gchar *dirs = get_xdg_var (TRUE, dir);
-    gchar *path = g_strconcat (dirs, basename, NULL);
-    g_free (dirs);
-
-    if (file_exists (path)) {
-        return path; /* We found the file. */
-    }
-
-    g_free (path);
-
-    if (dir == XDG_CACHE) {
-        return NULL; /* There's no system cache directory. */
-    }
-
-    /* The file doesn't exist in the expected directory, check if it exists in
-     * one of the system-wide directories. */
-    char *system_dirs = get_xdg_var (FALSE, dir);
-    path = find_existing_file_options (system_dirs, basename);
-    g_free (system_dirs);
-
-    return path;
 }
 #endif
