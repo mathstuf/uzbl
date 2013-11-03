@@ -2725,7 +2725,7 @@ IMPLEMENT_GETTER (gchar *, custom_encoding)
 #endif
 
     if (!encoding) {
-        g_strdup ("");
+        encoding = "";
     }
 
     return g_strdup (encoding);
