@@ -5,5 +5,7 @@
 
 GString *
 uzbl_comm_vformat (const gchar *directive, const gchar *function, va_list vargs);
+gchar *
+uzbl_comm_escape (const gchar *str);
 
 #endif

@@ -84,6 +84,14 @@ uzbl_comm_vformat (const gchar *directive, const gchar *function, va_list vargs)
     return message;
 }
 
+gchar *
+uzbl_comm_escape (const gchar *str)
+{
+    GString *esc = g_string_new ("");
+    append_escaped (esc, str);
+    return g_string_free (esc, FALSE);
+}
+
 /* ===================== HELPER IMPLEMENTATIONS ===================== */
 
 GString *
