@@ -102,22 +102,14 @@ void
 uzbl_commands_send_builtin_event ()
 {
     GString *command_list = g_string_new ("");
-
-    g_string_append_c (command_list, '[');
-
-    gboolean first = TRUE;
+    const gchar *prefix = "[";
 
     const UzblCommand *cmd = builtin_command_table;
     while (cmd->name) {
-        if (!first) {
-            g_string_append_c (command_list, ',');
-        }
-        g_string_append_c (command_list, '\"');
-        g_string_append (command_list, cmd->name);
-        g_string_append_c (command_list, '\"');
+        g_string_append_printf (command_list, "%s\"%s\"", prefix, cmd->name);
 
         ++cmd;
-        first = TRUE;
+        prefix = ",";
     }
 
     g_string_append_c (command_list, ']');
