@@ -125,6 +125,15 @@ uzbl_init (int *argc, char ***argv)
     uzbl_soup_init (uzbl.net.soup_session);
 #endif
 
+    pid_t pid = getpid ();
+    gchar *pid_str = g_strdup_printf ("%d", pid);
+    g_setenv ("UZBL_PID", pid_str, TRUE);
+
+    if (!uzbl.state.instance_name) {
+        uzbl.state.instance_name = g_strdup (pid_str);
+    }
+    g_free (pid_str);
+
     uzbl_io_init ();
     uzbl_js_init ();
     uzbl_variables_init ();
@@ -154,15 +163,6 @@ uzbl_init (int *argc, char ***argv)
     uzbl_io_flush_buffer ();
 
     /* Send the startup event. */
-    pid_t pid = getpid ();
-    gchar *pid_str = g_strdup_printf ("%d", pid);
-    g_setenv ("UZBL_PID", pid_str, TRUE);
-
-    if (!uzbl.state.instance_name) {
-        uzbl.state.instance_name = g_strdup (pid_str);
-    }
-    g_free (pid_str);
-
     uzbl_events_send (INSTANCE_START, NULL,
         TYPE_INT, pid,
         NULL);
