@@ -17,6 +17,7 @@
 typedef struct {
     gchar *name;
     gboolean enabled;
+    gboolean running;
 
     GIOChannel *chan;
 
@@ -65,6 +66,14 @@ uzbl_em_init_plugin (const gchar *name)
 {
     if (!name || !g_strcmp0 (name, "common")) {
         return NULL;
+    }
+
+    UzblEMInstance *em = g_hash_table_lookup (uzbl.em->instances, name);
+    if (em) {
+        if (em->running) {
+            return NULL;
+        }
+        g_hash_table_remove (uzbl.em->instances, name);
     }
 
     GIOChannel *chan = em_init (name);
@@ -231,6 +240,7 @@ em_init (const gchar *name)
 
     g_hash_table_insert (uzbl.em->instances, g_strdup (name), em);
     em->enabled = TRUE;
+    em->running = TRUE;
 
     /* TODO: Load uzbl configuration file associated with the plugin. */
 
@@ -391,6 +401,8 @@ control_em (GIOChannel *gio, GIOCondition condition, gpointer data)
 
     ret = g_io_channel_read_line (gio, &ctl_line, &len, NULL, NULL);
     if ((ret == G_IO_STATUS_ERROR) || (ret == G_IO_STATUS_EOF)) {
+        em->running = FALSE;
+        g_main_loop_quit (em->em_loop);
         return FALSE;
     }
 
