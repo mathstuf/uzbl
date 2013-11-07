@@ -103,6 +103,9 @@ uzbl_io_free ()
     g_async_queue_unref (uzbl.io->cmd_q);
     g_thread_unref (uzbl.io->io_thread);
 
+    g_main_context_unref (uzbl.io->io_ctx);
+    uzbl.io->io_ctx = NULL;
+
     g_free (uzbl.io);
     uzbl.io = NULL;
 }
@@ -397,9 +400,6 @@ run_io (gpointer data)
     g_main_loop_run (uzbl.io->io_loop);
     g_main_loop_unref (uzbl.io->io_loop);
     uzbl.io->io_loop = NULL;
-
-    g_main_context_unref (uzbl.io->io_ctx);
-    uzbl.io->io_ctx = NULL;
 
     return NULL;
 }
