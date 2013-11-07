@@ -601,26 +601,24 @@ attach_fifo (const gchar *path)
     /* We don't really need to write to the file, but if we open the file as
      * 'r' we will block here, waiting for a writer to open the file. */
     GIOChannel *chan = g_io_channel_new_file (path, "r+", &error);
-    if (chan) {
-        add_cmd_source (chan, "Uzbl main fifo",
-            control_fifo, NULL);
-
-        g_io_channel_unref (chan);
-
-        uzbl.io->fifo_path = g_strdup (path);
-        uzbl_events_send (FIFO_SET, NULL,
-            TYPE_STR, uzbl.io->fifo_path,
-            NULL);
-        /* TODO: Collect all environment settings into one place. */
-        g_setenv ("UZBL_FIFO", uzbl.io->fifo_path, TRUE);
-
-        return TRUE;
-    } else {
+    if (!chan) {
         g_warning ("attach_fifo: can't open: %s\n", error->message);
+        g_error_free (error);
+        return FALSE;
     }
 
-    g_error_free (error);
-    return FALSE;
+    add_cmd_source (chan, "Uzbl main fifo",
+        control_fifo, NULL);
+    g_io_channel_unref (chan);
+
+    uzbl.io->fifo_path = g_strdup (path);
+    uzbl_events_send (FIFO_SET, NULL,
+        TYPE_STR, uzbl.io->fifo_path,
+        NULL);
+    /* TODO: Collect all environment settings into one place. */
+    g_setenv ("UZBL_FIFO", uzbl.io->fifo_path, TRUE);
+
+    return TRUE;
 }
 
 static gboolean
@@ -632,31 +630,38 @@ attach_socket (const gchar *path, struct sockaddr_un *local)
     GIOChannel *chan = NULL;
     int sock = socket (AF_UNIX, SOCK_STREAM, 0);
 
-    if (!bind (sock, (struct sockaddr *)local, sizeof (*local))) {
-        uzbl_debug ("init_socket: opened in %s\n", path);
-
-        if (listen (sock, 5)) {
-            g_warning ("attach_socket: could not listen on %s: %s\n", path, strerror (errno));
-        }
-
-        if ((chan = g_io_channel_unix_new (sock))) {
-            add_cmd_source (chan, "Uzbl main socket",
-                control_socket, NULL);
-
-            g_io_channel_unref (chan);
-
-            uzbl.io->socket_path = g_strdup (path);
-            uzbl_events_send (SOCKET_SET, NULL,
-                TYPE_STR, uzbl.io->socket_path,
-                NULL);
-            /* TODO: Collect all environment settings into one place. */
-            g_setenv ("UZBL_SOCKET", uzbl.io->socket_path, TRUE);
-            return TRUE;
-        }
-    } else {
+    if (bind (sock, (struct sockaddr *)local, sizeof (*local))) {
         g_warning ("attach_socket: could not bind to %s: %s\n", path, strerror (errno));
+        goto attach_socket_fail;
     }
 
+    uzbl_debug ("init_socket: opened in %s\n", path);
+
+    if (listen (sock, 5)) {
+        g_warning ("attach_socket: could not listen on %s: %s\n", path, strerror (errno));
+        goto attach_socket_fail;
+    }
+
+    chan = g_io_channel_unix_new (sock);
+    if (!chan) {
+        goto attach_socket_fail;
+    }
+
+    add_cmd_source (chan, "Uzbl main socket",
+        control_socket, NULL);
+    g_io_channel_unref (chan);
+
+    uzbl.io->socket_path = g_strdup (path);
+    uzbl_events_send (SOCKET_SET, NULL,
+        TYPE_STR, uzbl.io->socket_path,
+        NULL);
+    /* TODO: Collect all environment settings into one place. */
+    g_setenv ("UZBL_SOCKET", uzbl.io->socket_path, TRUE);
+
+    return TRUE;
+
+attach_socket_fail:
+    close (sock);
     return FALSE;
 }
 
