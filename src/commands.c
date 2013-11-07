@@ -1,5 +1,6 @@
 #include "commands.h"
 
+#include "em.h"
 #include "events.h"
 #include "gui.h"
 #include "io.h"
@@ -622,6 +623,7 @@ DECLARE_COMMAND (spawn_sh);
 DECLARE_COMMAND (spawn_sh_sync);
 
 /* Uzbl commands */
+DECLARE_COMMAND (em);
 DECLARE_COMMAND (chain);
 DECLARE_COMMAND (include);
 DECLARE_COMMAND (exit);
@@ -715,6 +717,7 @@ builtin_command_table[] = {
     { "spawn_sh_sync",                  cmd_spawn_sh_sync,            TRUE,  TRUE  },
 
     /* Uzbl commands */
+    { "em",                             cmd_em,                       TRUE,  TRUE  },
     { "chain",                          cmd_chain,                    TRUE,  TRUE  },
     { "include",                        cmd_include,                  FALSE, TRUE  },
     { "exit",                           cmd_exit,                     TRUE,  TRUE  },
@@ -2479,6 +2482,71 @@ IMPLEMENT_COMMAND (spawn_sh_sync)
 }
 
 /* Uzbl commands */
+
+IMPLEMENT_COMMAND (em)
+{
+    UZBL_UNUSED (result);
+
+    ARG_CHECK (argv, 2);
+
+    typedef enum {
+        ACTION_RELOAD,
+        ACTION_LOAD,
+        ACTION_UNLOAD,
+        ACTION_ENABLE,
+        ACTION_DISABLE,
+        ACTION_TOGGLE
+    } EMAction;
+
+    const gchar *cmd = argv_idx (argv, 0);
+    EMAction action;
+
+    if (!g_strcmp0 (cmd, "reload")) {
+        action = ACTION_RELOAD;
+    } else if (!g_strcmp0 (cmd, "load")) {
+        action = ACTION_LOAD;
+    } else if (!g_strcmp0 (cmd, "unload")) {
+        action = ACTION_UNLOAD;
+    } else if (!g_strcmp0 (cmd, "enable")) {
+        action = ACTION_ENABLE;
+    } else if (!g_strcmp0 (cmd, "disable")) {
+        action = ACTION_DISABLE;
+    } else if (!g_strcmp0 (cmd, "toggle")) {
+        action = ACTION_TOGGLE;
+    } else {
+        g_debug ("Unrecognized em action: %s\n", cmd);
+        return;
+    }
+
+    guint i = 1;
+    const gchar *em;
+    while ((em = argv_idx (argv, i++))) {
+        switch (action) {
+        case ACTION_RELOAD:
+            uzbl_em_free_plugin (em);
+            /* FALLTHROUGH */
+        case ACTION_LOAD:
+        {
+            gchar *path = g_strdup_printf (UZBL_EM_PREFIX "%s", em);
+            uzbl_io_init_connect_socket (path);
+            g_free (path);
+            break;
+        }
+        case ACTION_UNLOAD:
+            uzbl_em_free_plugin (em);
+            break;
+        case ACTION_ENABLE:
+            uzbl_em_set_enabled (em, TRUE);
+            break;
+        case ACTION_DISABLE:
+            uzbl_em_set_enabled (em, FALSE);
+            break;
+        case ACTION_TOGGLE:
+            uzbl_em_toggle (em);
+            break;
+        }
+    }
+}
 
 IMPLEMENT_COMMAND (chain)
 {
