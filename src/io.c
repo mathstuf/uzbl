@@ -734,8 +734,9 @@ write_to_socket (GIOChannel *channel, const gchar *message)
 {
     GIOStatus ret;
     GError *error = NULL;
+    GIOFlags flags = g_io_channel_get_flags (channel);
 
-    if (!channel->is_writeable) {
+    if (!(flags | G_IO_FLAG_IS_WRITEABLE)) {
         return;
     }
 
