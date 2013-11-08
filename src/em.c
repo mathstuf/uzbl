@@ -163,17 +163,22 @@ em_init (const gchar *name)
 
     UzblEMInstance *em = g_malloc0 (sizeof (UzblEMInstance));
 
-    JSContextGroupRef group = JSContextGetGroup (uzbl.state.jscontext);
-    em->js_ctx = JSGlobalContextCreateInGroup (group, NULL);
+    if (0) {
+        JSContextGroupRef group = JSContextGetGroup (uzbl.state.jscontext);
+        em->js_ctx = JSGlobalContextCreateInGroup (group, NULL);
 
-    JSValueRef uzbl_val = uzbl_js_object (uzbl.state.jscontext, "uzbl");
+        JSValueRef uzbl_val = uzbl_js_object (uzbl.state.jscontext, "uzbl");
+        JSObjectRef em_global = JSContextGetGlobalObject (em->js_ctx);
+
+        uzbl_js_set (em->js_ctx,
+            em_global, "uzbl", uzbl_val,
+            kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete);
+    } else {
+        em->js_ctx = JSGlobalContextCreate (NULL);
+    }
     JSObjectRef em_global = JSContextGetGlobalObject (em->js_ctx);
     JSStringRef name_str = JSStringCreateWithUTF8CString (name);
     JSValueRef name_val = JSValueMakeString (em->js_ctx, name_str);
-
-    uzbl_js_set (em->js_ctx,
-        em_global, "uzbl", uzbl_val,
-        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete);
     uzbl_js_set (em->js_ctx,
         em_global, "name", name_val,
         kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete);
