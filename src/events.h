@@ -24,6 +24,7 @@
     call (NEW_WINDOW),          \
     call (CLOSE_WINDOW),        \
     call (VARIABLE_SET),        \
+    call (VARIABLE_UNSET),      \
     call (FIFO_SET),            \
     call (SOCKET_SET),          \
     call (INSTANCE_START),      \

@@ -201,6 +201,29 @@ uzbl_variables_set (const gchar *name, gchar *val)
     return TRUE;
 }
 
+gboolean
+uzbl_variables_unset (const gchar *name)
+{
+    UzblVariable *var = get_variable (name);
+    if (!var) {
+        return FALSE;
+    }
+
+    if (var->builtin) {
+        return FALSE;
+    }
+
+    gboolean ret = g_hash_table_remove (uzbl.variables->table, name);
+
+    if (ret) {
+        uzbl_events_send (VARIABLE_UNSET, NULL,
+            TYPE_NAME, name,
+            NULL);
+    }
+
+    return ret;
+}
+
 static gchar *
 get_variable_string (const UzblVariable *var);
 static int
@@ -437,6 +460,8 @@ static bool
 js_set_variable (JSContextRef ctx, JSObjectRef object, JSStringRef propertyName, JSValueRef value, JSValueRef* exception);
 static bool
 js_delete_variable (JSContextRef ctx, JSObjectRef object, JSStringRef propertyName, JSValueRef* exception);
+static void
+js_get_property_names (JSContextRef ctx, JSObjectRef object, JSPropertyNameAccumulatorRef propertyNames);
 
 void
 init_js_variables_api ()
@@ -457,7 +482,7 @@ init_js_variables_api ()
         js_get_variable,       // get property
         js_set_variable,       // set property
         js_delete_variable,    // delete property
-        NULL,                  // get property names
+        js_get_property_names, // get property names
         NULL,                  // call as function
         NULL,                  // call as contructor
         NULL,                  // has instance
@@ -985,12 +1010,25 @@ js_delete_variable (JSContextRef ctx, JSObjectRef object, JSStringRef propertyNa
 {
     UZBL_UNUSED (ctx);
     UZBL_UNUSED (object);
-    UZBL_UNUSED (propertyName);
     UZBL_UNUSED (exception);
 
-    /* Variables cannot be deleted from uzbl. */
+    gchar *name = uzbl_js_extract_string (propertyName);
+    bool ret = uzbl_variables_unset (name);
+    g_free (name);
 
-    return false;
+    return ret;
+}
+
+static void
+js_add_property_name (gpointer key, gpointer value, gpointer data);
+
+void
+js_get_property_names (JSContextRef ctx, JSObjectRef object, JSPropertyNameAccumulatorRef propertyNames)
+{
+    UZBL_UNUSED (ctx);
+    UZBL_UNUSED (object);
+
+    g_hash_table_foreach (uzbl.variables->table, js_add_property_name, propertyNames);
 }
 
 void
@@ -1043,6 +1081,19 @@ expand_type (const gchar *str)
     default:
         return EXPAND_VAR;
     }
+}
+
+void
+js_add_property_name (gpointer key, gpointer value, gpointer data)
+{
+    UZBL_UNUSED (value);
+
+    const gchar *name = (const gchar *)key;
+    JSPropertyNameAccumulatorRef names = (JSPropertyNameAccumulatorRef)data;
+
+    JSStringRef name_str = JSStringCreateWithUTF8CString (name);
+    JSPropertyNameAccumulatorAddName (names, name_str);
+    JSStringRelease (name_str);
 }
 
 /* ======================== VARIABLES  TABLE ======================== */

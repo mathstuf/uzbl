@@ -2568,6 +2568,16 @@ IMPLEMENT_COMMAND (set)
     g_strfreev (split);
 }
 
+IMPLEMENT_COMMAND (unset)
+{
+    UZBL_UNUSED (result);
+
+    ARG_CHECK (argv, 1);
+
+    gchar *var = argv_idx (argv, 0);
+    uzbl_variables_unset (var);
+}
+
 IMPLEMENT_COMMAND (toggle)
 {
     UZBL_UNUSED (result);
