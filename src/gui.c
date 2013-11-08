@@ -757,7 +757,7 @@ decide_policy_cb (WebKitWebView *view, WebKitPolicyDecision *decision, WebKitPol
         return request_decision (uri, decision);
     }
     default:
-        uzbl_debug ("Unrecognized policy decision: %d\n", type);
+        g_debug ("Unrecognized policy decision: %d", type);
         break;
     }
 
@@ -1455,7 +1455,7 @@ navigation_decision (WebKitWebPolicyDecision *decision, const gchar *uri,
         return TRUE;
     }
 
-    uzbl_debug ("Navigation requested -> %s\n", uri);
+    g_debug ("Navigation requested -> %s", uri);
 
     gchar *handler = uzbl_variables_get_string ("scheme_handler");
 
@@ -1483,7 +1483,7 @@ navigation_decision (WebKitWebPolicyDecision *decision, const gchar *uri,
 gboolean
 request_decision (const gchar *uri, gpointer data)
 {
-    uzbl_debug ("Request starting -> %s\n", uri);
+    g_debug ("Request starting -> %s", uri);
 
     uzbl_events_send (REQUEST_STARTING, NULL,
         TYPE_STR, uri,
@@ -1544,7 +1544,7 @@ send_load_status (WebKitLoadStatus status, const gchar *uri)
         event = LOAD_FINISH;
         break;
     default:
-        uzbl_debug ("Unrecognized load status: %d\n", status);
+        g_debug ("Unrecognized load status: %d", status);
         break;
     }
 
@@ -1775,7 +1775,7 @@ request_permission (const gchar *uri, const gchar *type, GObject *obj)
         return TRUE;
     }
 
-    uzbl_debug ("Permission requested -> %s\n", uri);
+    g_debug ("Permission requested -> %s", uri);
 
     gchar *handler = uzbl_variables_get_string ("permission_handler");
 
@@ -2018,7 +2018,7 @@ rewrite_request (GString *result, gpointer data)
 #endif
 
     if (result->len > 0) {
-        uzbl_debug ("Request rewritten -> %s\n", result->str);
+        g_debug ("Request rewritten -> %s", result->str);
 
 #ifdef USE_WEBKIT2
         if (!g_strcmp0 (result->str, "IGNORE")) {
@@ -2061,7 +2061,7 @@ decide_destination_cb (WebKitDownload *download, const gchar *suggested_filename
         destination = user_destination;
     }
 
-    uzbl_debug ("Download requested -> %s\n", uri);
+    g_debug ("Download requested -> %s", uri);
 
     gchar *handler = uzbl_variables_get_string ("download_handler");
 
@@ -2193,7 +2193,7 @@ download_status_cb (WebKitDownload *download, GParamSpec *param_spec, gpointer d
         download_finished_cb (download, data);
         break;
     default:
-        uzbl_debug ("Unknown download status: %d\n", status);
+        g_debug ("Unknown download status: %d", status);
         break;
     }
 }

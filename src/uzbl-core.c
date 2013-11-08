@@ -362,7 +362,7 @@ read_config_file (const gchar *file)
         uzbl_commands_load_file (file);
         g_setenv ("UZBL_CONFIG", file, TRUE);
     } else {
-        uzbl_debug ("No configuration file loaded.\n");
+        g_message ("No configuration file loaded.");
     }
 }
 

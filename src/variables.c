@@ -173,7 +173,7 @@ uzbl_variables_set (const gchar *name, gchar *val)
         /* A custom var that has not been set. Check whether name violates our
          * naming scheme. */
         if (!uzbl_variables_is_valid (name)) {
-            uzbl_debug ("Invalid variable name: %s\n", name);
+            g_debug ("Invalid variable name: %s", name);
             return FALSE;
         }
 
@@ -875,7 +875,7 @@ dump_variable (gpointer key, gpointer value, gpointer data)
 
     variable_expand (var, buf);
 
-    printf ("set %s %s\n", name, buf->str);
+    g_print ("set %s %s\n", name, buf->str);
 
     g_string_free (buf, TRUE);
 }
@@ -1821,9 +1821,9 @@ uzbl_variables_private_free (UzblVariablesPrivate *priv)
                                             \
         name##_choices (STRING_TO_ENUM)     \
         {                                   \
-            uzbl_debug ("Unrecognized "     \
-                        "value for " #name  \
-                        ": %s\n", name);    \
+            g_debug ("Unrecognized value "  \
+                     "for " #name ": %s",   \
+                     name);                 \
             return FALSE;                   \
         }                                   \
                                             \
@@ -1918,7 +1918,7 @@ IMPLEMENT_SETTER (gchar *, icon)
         return TRUE;
     }
 
-    uzbl_debug ("Icon \"%s\" not found. ignoring.\n", icon);
+    g_debug ("Icon \"%s\" not found. ignoring.", icon);
 
     return FALSE;
 }
@@ -2129,7 +2129,7 @@ IMPLEMENT_SETTER (gchar *, http_debug)
 
     http_debug_choices (STRING_TO_ENUM)
     {
-        uzbl_debug ("Unrecognized value for http_debug: %s\n", http_debug);
+        g_debug ("Unrecognized value for http_debug: %s", http_debug);
         return FALSE;
     }
 

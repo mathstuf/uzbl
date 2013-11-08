@@ -426,7 +426,7 @@ call_command (JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, si
     json_ret = JSValueMakeFromJSONString (ctx, result_str);
 
     if (!json_ret) {
-        uzbl_debug ("Failed to parse result as JSON for command \'%s\': %s\n", info->name, result->str);
+        g_debug ("Failed to parse result as JSON for command \'%s\': %s", info->name, result->str);
 
         json_ret = JSValueMakeString (ctx, result_str);
     }
@@ -796,7 +796,7 @@ IMPLEMENT_COMMAND (reload)
     } else if (!g_strcmp0 (type, "full")) {
         webkit_web_view_reload_bypass_cache (uzbl.gui.web_view);
     } else {
-        uzbl_debug ("Unrecognized reload type: %s\n", type);
+        g_debug ("Unrecognized reload type: %s", type);
     }
 }
 
@@ -940,7 +940,7 @@ IMPLEMENT_COMMAND (load)
         webkit_web_frame_load_string (frame, content, mime, encoding, baseuri);
 #endif
     } else {
-        uzbl_debug ("Unrecognized load command: %s\n", format);
+        g_debug ("Unrecognized load command: %s", format);
     }
 }
 
@@ -966,7 +966,7 @@ IMPLEMENT_COMMAND (save)
     if (!g_strcmp0 ("mhtml", mode_str)) {
         mode = WEBKIT_SAVE_MODE_MHTML;
     } else {
-        uzbl_debug ("Unrecognized save format: %s\n", mode_str);
+        g_debug ("Unrecognized save format: %s", mode_str);
         return;
     }
 
@@ -1000,7 +1000,7 @@ IMPLEMENT_COMMAND (frame)
     WebKitWebFrame *frame = webkit_web_frame_find_frame (focus_frame, name);
 
     if (!frame) {
-        uzbl_debug ("Failed to find frame: %s\n", name);
+        g_debug ("Failed to find frame: %s", name);
         return;
     }
 
@@ -1029,7 +1029,7 @@ IMPLEMENT_COMMAND (frame)
     } else if (!g_strcmp0 (command, "set")) {
         /* TODO: Implement. */
     } else {
-        uzbl_debug ("Unrecognized frame command: %s\n", command);
+        g_debug ("Unrecognized frame command: %s", command);
     }
 }
 #endif
@@ -1051,7 +1051,7 @@ IMPLEMENT_COMMAND (cookie)
 
     if (!g_strcmp0 (command, "add")) {
 #ifdef USE_WEBKIT2
-        uzbl_debug ("Manual cookie additions are unsupported in WebKit2.\n");
+        g_debug ("Manual cookie additions are unsupported in WebKit2.");
 #else
         ARG_CHECK (argv, 7);
 
@@ -1096,7 +1096,7 @@ IMPLEMENT_COMMAND (cookie)
 #endif
     } else if (!g_strcmp0 (command, "delete")) {
 #ifdef USE_WEBKIT2
-        uzbl_debug ("Manual cookie deletions are unsupported in WebKit2.\n");
+        g_debug ("Manual cookie deletions are unsupported in WebKit2.");
 #else
         ARG_CHECK (argv, 5);
 
@@ -1144,10 +1144,10 @@ IMPLEMENT_COMMAND (cookie)
             }
 #endif
         } else {
-            uzbl_debug ("Unrecognized cookie clear type: %s\n", type);
+            g_debug ("Unrecognized cookie clear type: %s", type);
         }
     } else {
-        uzbl_debug ("Unrecognized cookie command: %s\n", command);
+        g_debug ("Unrecognized cookie command: %s", command);
     }
 }
 
@@ -1180,7 +1180,7 @@ IMPLEMENT_COMMAND (scroll)
     } else if (!g_strcmp0 (direction, "vertical")) {
         bar = uzbl.gui.bar_v;
     } else {
-        uzbl_debug ("Unrecognized scroll direction: %s\n", direction);
+        g_debug ("Unrecognized scroll direction: %s", direction);
         return;
     }
 
@@ -1292,7 +1292,7 @@ IMPLEMENT_COMMAND (hardcopy)
             webkit_print_operation_print (print_op);
             break;
         default:
-            uzbl_debug ("Unknown response for a print action; assuming cancel\n");
+            g_debug ("Unknown response for a print action; assuming cancel");
             break;
         }
 
@@ -1314,13 +1314,13 @@ IMPLEMENT_COMMAND (hardcopy)
         }
 
         if (!frame && target) {
-            uzbl_debug ("Failed to locate frame: %s\n", target);
+            g_debug ("Failed to locate frame: %s", target);
         } else {
             webkit_web_frame_print (frame);
         }
 #endif
     } else {
-        uzbl_debug ("Unrecognized hardcopy region: %s\n", region);
+        g_debug ("Unrecognized hardcopy region: %s", region);
     }
 }
 
@@ -1380,7 +1380,7 @@ IMPLEMENT_COMMAND (snapshot)
         region = WEBKIT_SNAPSHOT_REGION_FULL_DOCUMENT;
 #endif
     } else {
-        uzbl_debug ("Unrecognized snapshot region: %s\n", region_str);
+        g_debug ("Unrecognized snapshot region: %s", region_str);
         return;
     }
 
@@ -1396,7 +1396,7 @@ IMPLEMENT_COMMAND (snapshot)
         if (!g_strcmp0 (option, "selection")) {
             options |= WEBKIT_SNAPSHOT_OPTIONS_INCLUDE_SELECTION_HIGHLIGHTING;
         } else {
-            uzbl_debug ("Unrecognized snapshot option: %s\n", option);
+            g_debug ("Unrecognized snapshot option: %s", option);
         }
     }
 
@@ -1419,14 +1419,14 @@ IMPLEMENT_COMMAND (snapshot)
 #endif
 
     if (!surface) {
-        uzbl_debug ("Failed to create a valid snapshot");
+        g_debug ("Failed to create a valid snapshot");
         return;
     }
 
     if (!g_strcmp0 (format, "png")) {
         cairo_surface_write_to_png (surface, path);
     } else {
-        uzbl_debug ("Unrecognized snapshot format: %s\n", format);
+        g_debug ("Unrecognized snapshot format: %s", format);
     }
 
     cairo_surface_destroy (surface);
@@ -1482,7 +1482,7 @@ IMPLEMENT_COMMAND (plugin)
         /* TODO: Implement enable/disable subcommands. */
 #endif
     } else {
-        uzbl_debug ("Unrecognized plugin command: %s\n", command);
+        g_debug ("Unrecognized plugin command: %s", command);
     }
 }
 #endif
@@ -1567,7 +1567,7 @@ IMPLEMENT_COMMAND (spell)
 
         g_strfreev (guesses);
     } else {
-        uzbl_debug ("Unrecognized spell command: %s\n", command);
+        g_debug ("Unrecognized spell command: %s", command);
     }
 }
 #endif
@@ -1587,7 +1587,7 @@ IMPLEMENT_COMMAND (cache)
 
         webkit_web_context_clear_cache (context);
     } else {
-        uzbl_debug ("Unrecognized cache command: %s\n", command);
+        g_debug ("Unrecognized cache command: %s", command);
     }
 }
 #endif
@@ -1622,7 +1622,7 @@ IMPLEMENT_COMMAND (favicon)
     } else if (!g_strcmp0 (command, "save")) {
         /* TODO: Implement. */
     } else {
-        uzbl_debug ("Unrecognized favicon command: %s\n", command);
+        g_debug ("Unrecognized favicon command: %s", command);
     }
 }
 
@@ -1657,7 +1657,7 @@ IMPLEMENT_COMMAND (css)
         } else if (!g_strcmp0 (where, "top_only")) {
             frames = WEBKIT_INJECTED_CONTENT_FRAMES_TOP_ONLY;
         } else {
-            uzbl_debug ("Unrecognized frame target: %s\n", where);
+            g_debug ("Unrecognized frame target: %s", where);
         }
 
         const gchar *baseuri = argv_idx (argv, 3);
@@ -1700,7 +1700,7 @@ IMPLEMENT_COMMAND (css)
             "user-stylesheet-uri", uri,
             NULL);
 
-        uzbl_debug ("WebKit1 only supports one stylesheet at a time\n");
+        g_debug ("WebKit1 only supports one stylesheet at a time");
 #endif
     } else if (!g_strcmp0 (command, "clear")) {
 #ifdef USE_WEBKIT2
@@ -1712,7 +1712,7 @@ IMPLEMENT_COMMAND (css)
             NULL);
 #endif
     } else {
-        uzbl_debug ("Unrecognized css command: %s\n", command);
+        g_debug ("Unrecognized css command: %s", command);
     }
 }
 
@@ -1789,7 +1789,7 @@ IMPLEMENT_COMMAND (menu)
 
         g_string_append_c (result, ']');
     } else {
-        uzbl_debug ("Unrecognized menu action: %s\n", action_str);;
+        g_debug ("Unrecognized menu action: %s", action_str);;
         return;
     }
 
@@ -1815,7 +1815,7 @@ IMPLEMENT_COMMAND (menu)
         } else if (!g_strcmp0 (object, "editable")) {
             context = WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE;
         } else {
-            uzbl_debug ("Unrecognized menu object: %s\n", object);;
+            g_debug ("Unrecognized menu object: %s", object);;
             return;
         }
 
@@ -2120,7 +2120,7 @@ IMPLEMENT_COMMAND (search)
             uzbl.commands->search_options & WEBKIT_FIND_OPTIONS_WRAP_AROUND);
 #endif
     } else {
-        uzbl_debug ("Unrecognized search command: %s\n", command);
+        g_debug ("Unrecognized search command: %s", command);
     }
 
 search_exit:
@@ -2210,7 +2210,7 @@ IMPLEMENT_COMMAND (security)
     }
 
     if (!field->name) {
-        uzbl_debug ("Unrecognized option: %s\n", option);
+        g_debug ("Unrecognized option: %s", option);
     }
 
 #ifdef USE_WEBKIT2
@@ -2265,7 +2265,7 @@ IMPLEMENT_COMMAND (dns)
 
         webkit_web_context_prefetch_dns (context, hostname);
     } else {
-        uzbl_debug ("Unrecognized dns command: %s\n", command);
+        g_debug ("Unrecognized dns command: %s", command);
     }
 }
 #endif
@@ -2314,7 +2314,7 @@ IMPLEMENT_COMMAND (inspector)
 #endif
 #endif
     } else {
-        uzbl_debug ("Unrecognized inspector command: %s\n", command);
+        g_debug ("Unrecognized inspector command: %s", command);
     }
 }
 
@@ -2342,7 +2342,7 @@ IMPLEMENT_COMMAND (js)
         jsctx = webkit_web_frame_get_global_context (frame);
 
         if (!jsctx) {
-            uzbl_debug ("Failed to get the javascript context\n");
+            g_debug ("Failed to get the javascript context");
             return;
         }
 
@@ -2358,13 +2358,13 @@ IMPLEMENT_COMMAND (js)
 #endif
 
         if (!jsctx) {
-            uzbl_debug ("Failed to get the javascript context\n");
+            g_debug ("Failed to get the javascript context");
             return;
         }
 
         JSGlobalContextRetain (jsctx);
     } else {
-        uzbl_debug ("Unrecognized js context: %s\n", context);
+        g_debug ("Unrecognized js context: %s", context);
         return;
     }
 
@@ -2385,7 +2385,7 @@ IMPLEMENT_COMMAND (js)
                 g_io_channel_unref (chan);
             }
 
-            uzbl_debug ("External JavaScript file loaded: %s\n", req_path);
+            g_debug ("External JavaScript file loaded: %s", req_path);
 
             guint i;
             for (i = argv->len; 3 < i; --i) {
@@ -2398,7 +2398,7 @@ IMPLEMENT_COMMAND (js)
             }
         }
     } else {
-        uzbl_debug ("Unrecognized code source: %s\n", where);
+        g_debug ("Unrecognized code source: %s", where);
         goto js_exit;
     }
 
@@ -2417,7 +2417,7 @@ IMPLEMENT_COMMAND (js)
         }
     } else if (js_exc) {
         gchar *msg = uzbl_js_exception_to_string (jsctx, js_exc);
-        uzbl_debug ("Exception occured while executing script:\n %s", msg);
+        g_warning ("Exception occured while executing script:\n %s", msg);
         JSValueUnprotect (jsctx, js_exc);
         g_free (msg);
     }
@@ -2528,7 +2528,7 @@ IMPLEMENT_COMMAND (exit)
     uzbl.state.exit = TRUE;
 
     if (!uzbl.state.started) {
-        uzbl_debug ("Exit called before uzbl is initialized?");
+        g_debug ("Exit called before uzbl is initialized?");
         return;
     }
 
@@ -2732,7 +2732,7 @@ save_to_file_async_cb (GObject *object, GAsyncResult *res, gpointer data)
     webkit_web_view_save_to_file_finish (view, res, &err);
 
     if (err) {
-        uzbl_debug ("Failed to save page to file: %s\n", err->message);
+        g_debug ("Failed to save page to file: %s", err->message);
         g_error_free (err);
     }
 }
@@ -2748,7 +2748,7 @@ save_async_cb (GObject *object, GAsyncResult *res, gpointer data)
     GInputStream *stream = webkit_web_view_save_finish (view, res, &err);
 
     if (!stream) {
-        uzbl_debug ("Failed to save page: %s\n", err->message);
+        g_debug ("Failed to save page: %s", err->message);
         g_error_free (err);
         return;
     }
@@ -2833,7 +2833,7 @@ spawn_sh (GArray *argv, GString *result)
     gchar *shell = uzbl_variables_get_string ("shell_cmd");
 
     if (!*shell) {
-        uzbl_debug ("spawn_sh: shell_cmd is not set!\n");
+        g_debug ("spawn_sh: shell_cmd is not set!");
         g_free (shell);
         return;
     }
@@ -2890,15 +2890,15 @@ run_system_command (GArray *args, char **output_stdout)
             g_free (qarg);
         }
         g_string_append_printf (s, " -- result: %s", (result ? "true" : "false"));
-        printf ("%s\n", s->str);
+        g_debug ("%s", s->str);
         g_string_free (s, TRUE);
         if (output_stdout) {
-            printf ("Stdout: %s\n", *output_stdout);
+            g_debug ("Stdout: %s", *output_stdout);
         }
     }
 
     if (err) {
-        g_printerr ("error on run_system_command: %s\n", err->message);
+        g_critical ("error in run_system_command: %s", err->message);
         g_error_free (err);
     }
 

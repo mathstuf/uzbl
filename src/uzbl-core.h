@@ -7,8 +7,6 @@
 
 #include <sys/types.h>
 
-#define uzbl_debug g_debug
-
 /* GUI elements */
 typedef struct {
     /* Window */

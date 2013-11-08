@@ -124,7 +124,7 @@ uzbl_io_init_stdin ()
         add_cmd_source (chan, "Uzbl stdin watcher",
             control_stdin, NULL);
     } else {
-        g_error ("create_stdin: error while opening stdin\n");
+        g_error ("create_stdin: error while opening stdin");
     }
 }
 
@@ -152,7 +152,7 @@ uzbl_io_init_connect_socket (const gchar *socket_path)
             g_ptr_array_add (uzbl.io->connect_sockets, chan);
         }
     } else {
-        g_warning ("Error connecting to socket: %s\n", socket_path);
+        g_warning ("Error connecting to socket: %s", socket_path);
         return FALSE;
     }
 
@@ -205,7 +205,7 @@ void
 uzbl_io_schedule_command (const UzblCommand *cmd, GArray *argv, UzblIOCallback callback, gpointer data)
 {
     if (!cmd || !argv) {
-        uzbl_debug ("Invalid command scheduled");
+        g_critical ("Invalid command scheduled");
         return;
     }
 
@@ -242,7 +242,7 @@ uzbl_io_init_fifo (const gchar *dir)
     if (uzbl.io->fifo_path) {
         /* We're changing the fifo path, get rid of the old fifo if one exists. */
         if (unlink (uzbl.io->fifo_path)) {
-            g_warning ("Fifo: Can't unlink old fifo at %s\n", uzbl.io->fifo_path);
+            g_warning ("Fifo: Can't unlink old fifo at %s", uzbl.io->fifo_path);
             return FALSE;
         }
         g_free (uzbl.io->fifo_path);
@@ -253,7 +253,7 @@ uzbl_io_init_fifo (const gchar *dir)
 
     /* If something exists at that path, try to delete it. */
     if (file_exists (path) && unlink (path)) {
-        g_warning ("Fifo: Can't unlink old fifo at %s\n", path);
+        g_warning ("Fifo: Can't unlink old fifo at %s", path);
     }
 
     gboolean ret = FALSE;
@@ -262,10 +262,10 @@ uzbl_io_init_fifo (const gchar *dir)
       if (attach_fifo (path)) {
          ret = TRUE;
       } else {
-         g_warning ("init_fifo: can't attach to %s: %s\n", path, strerror (errno));
+         g_warning ("init_fifo: can't attach to %s: %s", path, strerror (errno));
       }
     } else {
-        g_warning ("init_fifo: can't create %s: %s\n", path, strerror (errno));
+        g_warning ("init_fifo: can't create %s: %s", path, strerror (errno));
     }
 
     g_free (path);
@@ -285,7 +285,7 @@ uzbl_io_init_socket (const gchar *dir)
     if (uzbl.io->socket_path) {
         /* Remove an existing socket should one exist. */
         if (unlink (uzbl.io->socket_path)) {
-            g_warning ("init_socket: couldn't unlink socket at %s\n", uzbl.io->socket_path);
+            g_warning ("init_socket: couldn't unlink socket at %s", uzbl.io->socket_path);
             return FALSE;
         }
         g_free (uzbl.io->socket_path);
@@ -300,7 +300,7 @@ uzbl_io_init_socket (const gchar *dir)
 
     /* If something exists at that path, try to delete it. */
     if (file_exists (path) && unlink (path)) {
-        g_warning ("Fifo: Can't unlink old fifo at %s\n", path);
+        g_warning ("Fifo: Can't unlink old fifo at %s", path);
     }
 
     struct sockaddr_un local;
@@ -311,7 +311,7 @@ uzbl_io_init_socket (const gchar *dir)
     if (attach_socket (path, &local)) {
         ret = TRUE;
     } else {
-        g_warning ("init_socket: can't attach to %s: %s\n", path, strerror (errno));
+        g_warning ("init_socket: can't attach to %s: %s", path, strerror (errno));
     }
 
     g_free (path);
@@ -541,7 +541,7 @@ build_stream_name (UzblCommType type, const gchar *dir)
         type_str = "socket";
         break;
     default:
-        g_error ("Unknown communication type: %d\n", type);
+        g_error ("Unknown communication type: %d", type);
         return NULL;
     }
 
@@ -602,7 +602,7 @@ attach_fifo (const gchar *path)
      * 'r' we will block here, waiting for a writer to open the file. */
     GIOChannel *chan = g_io_channel_new_file (path, "r+", &error);
     if (!chan) {
-        g_warning ("attach_fifo: can't open: %s\n", error->message);
+        g_warning ("attach_fifo: can't open: %s", error->message);
         g_error_free (error);
         return FALSE;
     }
@@ -631,14 +631,14 @@ attach_socket (const gchar *path, struct sockaddr_un *local)
     int sock = socket (AF_UNIX, SOCK_STREAM, 0);
 
     if (bind (sock, (struct sockaddr *)local, sizeof (*local))) {
-        g_warning ("attach_socket: could not bind to %s: %s\n", path, strerror (errno));
+        g_warning ("attach_socket: could not bind to %s: %s", path, strerror (errno));
         goto attach_socket_fail;
     }
 
-    uzbl_debug ("init_socket: opened in %s\n", path);
+    g_debug ("init_socket: opened in %s", path);
 
     if (listen (sock, 5)) {
-        g_warning ("attach_socket: could not listen on %s: %s\n", path, strerror (errno));
+        g_warning ("attach_socket: could not listen on %s: %s", path, strerror (errno));
         goto attach_socket_fail;
     }
 
@@ -761,16 +761,16 @@ control_fifo (GIOChannel *gio, GIOCondition condition, gpointer data)
     GError *err = NULL;
 
     if (condition & G_IO_HUP) {
-        g_error ("Fifo: Read end of pipe died!\n");
+        g_error ("Fifo: Read end of pipe died!");
     }
 
     if (!gio) {
-        g_error ("Fifo: GIOChannel broke\n");
+        g_error ("Fifo: GIOChannel broke");
     }
 
     ret = g_io_channel_read_line (gio, &ctl_line, NULL, NULL, &err);
     if (ret == G_IO_STATUS_ERROR) {
-        g_error ("Fifo: Error reading: %s\n", err->message);
+        g_error ("Fifo: Error reading: %s", err->message);
         g_error_free (err);
     }
 
