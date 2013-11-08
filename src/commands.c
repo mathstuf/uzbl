@@ -2416,16 +2416,9 @@ IMPLEMENT_COMMAND (js)
             g_free (result_utf8);
         }
     } else if (js_exc) {
-        JSObjectRef exc = JSValueToObject (jsctx, js_exc, NULL);
-
-        gchar *file = uzbl_js_to_string (jsctx, uzbl_js_get (jsctx, exc, "sourceURL"));
-        gchar *line = uzbl_js_to_string (jsctx, uzbl_js_get (jsctx, exc, "line"));
-        gchar *msg = uzbl_js_to_string (jsctx, exc);
-
-        uzbl_debug ("Exception occured while executing script:\n %s:%s: %s\n", file, line, msg);
-
-        g_free (file);
-        g_free (line);
+        gchar *msg = uzbl_js_exception_to_string (jsctx, js_exc);
+        uzbl_debug ("Exception occured while executing script:\n %s", msg);
+        JSValueUnprotect (jsctx, js_exc);
         g_free (msg);
     }
 

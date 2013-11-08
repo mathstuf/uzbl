@@ -14,6 +14,8 @@ uzbl_js_set (JSContextRef ctx, JSObjectRef obj, const gchar *prop, JSValueRef va
 gchar *
 uzbl_js_to_string (JSContextRef ctx, JSValueRef obj);
 gchar *
+uzbl_js_exception_to_string (JSContextRef ctx, JSValueRef exc);
+gchar *
 uzbl_js_extract_string (JSStringRef str);
 
 #endif

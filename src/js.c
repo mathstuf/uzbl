@@ -62,6 +62,23 @@ uzbl_js_to_string (JSContextRef ctx, JSValueRef val)
 }
 
 gchar *
+uzbl_js_exception_to_string (JSContextRef ctx, JSValueRef exc)
+{
+    JSObjectRef exc_obj = JSValueToObject (ctx, exc, NULL);
+    gchar *file = uzbl_js_to_string (ctx, uzbl_js_get (ctx, exc_obj, "sourceURL"));
+    gchar *line = uzbl_js_to_string (ctx, uzbl_js_get (ctx, exc_obj, "line"));
+    gchar *msg = uzbl_js_to_string (ctx, exc_obj);
+
+    gchar *err_msg = g_strdup_printf ("%s:%s: %s", file, line, msg);
+
+    g_free (file);
+    g_free (line);
+    g_free (msg);
+
+    return err_msg;
+}
+
+gchar *
 uzbl_js_extract_string (JSStringRef str)
 {
     size_t max_size = JSStringGetMaximumUTF8CStringSize (str);
