@@ -101,6 +101,7 @@ uzbl_io_free ()
     g_free (uzbl.io->socket_path);
 
     g_async_queue_unref (uzbl.io->cmd_q);
+    g_thread_join (uzbl.io->io_thread);
     g_thread_unref (uzbl.io->io_thread);
 
     g_main_context_unref (uzbl.io->io_ctx);
