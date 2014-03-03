@@ -67,10 +67,14 @@ CPPFLAGS += -DHAVE_LIBSOUP_CHECK_VERSION
 endif
 
 ifeq ($(ENABLE_WEBKIT2),yes)
-HAVE_WEBKIT2_TLS_API := $(shell pkg-config --exists 'webkit2gtk-3.0 >= 2.3.1' && echo yes)
-ifeq ($(HAVE_WEBKIT2_TLS_API),yes)
-REQ_PKGS += gnutls
+HAVE_TLS_API := $(shell pkg-config --exists 'webkit2gtk-3.0 >= 2.3.1' && echo yes)
+else
+HAVE_TLS_API := yes
 endif
+
+ifeq ($(HAVE_TLS_API),yes)
+REQ_PKGS += gnutls
+CPPFLAGS += -DHAVE_TLS_API
 endif
 
 PKG_CFLAGS := $(shell pkg-config --cflags $(REQ_PKGS))

@@ -1292,7 +1292,7 @@ uzbl itself and will be emitted based on what is happening within uzbl-core.
 * `LOAD_FINISH <URI>`
   - Sent when a page navigation is complete. All of the top-level resources
     have been retrieved by this point.
-* `TLS_ERROR <HOST> <FLAGS> <INFO>` (WebKit2 >= 2.3.1)
+* `TLS_ERROR <HOST> <FLAGS> <INFO>` (WebKit1 or WebKit2 >= 2.3.1)
   - The event sent if a `tls_error_handler` is not valid. See its documentation
     for the argument formats.
 * `REQUEST_QUEUED <URI>` (WebKit1 only)
