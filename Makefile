@@ -69,7 +69,7 @@ endif
 ifeq ($(ENABLE_WEBKIT2),yes)
 HAVE_TLS_API := $(shell pkg-config --exists 'webkit2gtk-3.0 >= 2.3.1' && echo yes)
 else
-HAVE_TLS_API := yes
+HAVE_TLS_API := $(shell pkg-config --exists 'webkitgtk-3.0 >= 2.4.0' && echo yes)
 endif
 
 ifeq ($(HAVE_TLS_API),yes)
