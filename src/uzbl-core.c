@@ -35,9 +35,6 @@
 #include "gui.h"
 #include "io.h"
 #include "setup.h"
-#ifndef USE_WEBKIT2
-#include "soup.h"
-#endif
 #include "type.h"
 #include "util.h"
 #include "variables.h"
@@ -118,23 +115,10 @@ uzbl_init (int *argc, char ***argv)
             WEBKIT_MAJOR_VERSION,
             WEBKIT_MINOR_VERSION,
             WEBKIT_MICRO_VERSION);
-#ifdef USE_WEBKIT2
-#define webkit_version(type) webkit_get_##type##_version ()
-#else
-#define webkit_version(type) webkit_##type##_version ()
-#endif
         printf ("WebKit run: %d.%d.%d\n",
-            webkit_version (major),
-            webkit_version (minor),
-            webkit_version (micro));
-#undef webkit_version
-        printf ("WebKit2: %d\n",
-#ifdef USE_WEBKIT2
-            1
-#else
-            0
-#endif
-            );
+            webkit_get_major_version (),
+            webkit_get_minor_version (),
+            webkit_get_micro_version ());
         printf ("libsoup compile: %d.%d.%d\n",
             SOUP_MAJOR_VERSION,
             SOUP_MINOR_VERSION,
@@ -163,7 +147,6 @@ uzbl_init (int *argc, char ***argv)
     }
 #endif
 
-#if USE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (2, 3, 5)
     /* Use this in the hopes that one day uzbl itself can be multi-threaded. */
     WebKitWebContext *webkit_context = webkit_web_context_get_default ();
@@ -176,13 +159,6 @@ uzbl_init (int *argc, char ***argv)
         ;
     webkit_web_context_set_process_model (webkit_context, model);
 #endif
-#endif
-
-    /* HTTP client. */
-#ifndef USE_WEBKIT2 /* FIXME: This seems important... */
-    uzbl.net.soup_session = webkit_get_default_session ();
-    uzbl_soup_init (uzbl.net.soup_session);
-#endif
 
     uzbl_io_init ();
     uzbl_js_init ();
@@ -190,10 +166,6 @@ uzbl_init (int *argc, char ***argv)
     uzbl_commands_init ();
     uzbl_events_init ();
     uzbl_requests_init ();
-
-#ifndef USE_WEBKIT2
-    uzbl_scheme_init ();
-#endif
 
     /* Initialize the GUI. */
     uzbl_gui_init ();

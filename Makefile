@@ -12,45 +12,21 @@ DOCDIR     ?= $(INSTALLDIR)/share/uzbl/docs
 RUN_PREFIX ?= $(PREFIX)
 INSTALL    ?= install -p
 
-ENABLE_WEBKIT2 ?= no
-ENABLE_GTK3    ?= auto
-
 PYTHON   = python3
 COVERAGE = $(shell which coverage)
 
 # --- configuration ends here ---
 
-ifeq ($(ENABLE_WEBKIT2),auto)
-ENABLE_WEBKIT2 := $(shell pkg-config --exists webkit2gtk-3.0 && echo yes)
-endif
-
 ifeq ($(ENABLE_GTK3),auto)
 ENABLE_GTK3 := $(shell pkg-config --exists gtk+-3.0 && echo yes)
 endif
 
-ifeq ($(ENABLE_WEBKIT2),yes)
-REQ_PKGS += 'webkit2gtk-3.0 >= 1.2.4' javascriptcoregtk-3.0
-CPPFLAGS += -DUSE_WEBKIT2
-# WebKit2 requires GTK3
-ENABLE_GTK3 := yes
-else
-ifeq ($(ENABLE_GTK3),yes)
-REQ_PKGS += 'webkitgtk-3.0 >= 1.2.4' javascriptcoregtk-3.0
-else
-REQ_PKGS += 'webkit-1.0 >= 1.2.4' javascriptcoregtk-1.0
-endif
-endif
+REQ_PKGS += 'webkit2gtk-3.0 >= 1.2.4' javascriptcoregtk-3.0 gtk+-3.0
+REQ_PKGS += 'libsoup-2.4 >= 2.33.4' gthread-2.0 glib-2.0
 
-ifeq ($(ENABLE_GTK3),yes)
-REQ_PKGS += gtk+-3.0
 CPPFLAGS += -DG_DISABLE_DEPRECATED
 # WebKitGTK uses deprecated features, so uzbl can't blanket this out.
 #CPPFLAGS += -DGTK_DISABLE_DEPRECATED
-else
-REQ_PKGS += gtk+-2.0
-endif
-
-REQ_PKGS += 'libsoup-2.4 >= 2.33.4' gthread-2.0 glib-2.0
 
 ARCH := $(shell uname -m)
 
@@ -63,11 +39,9 @@ ifeq ($(HAVE_LIBSOUP_VERSION),yes)
 CPPFLAGS += -DHAVE_LIBSOUP_CHECK_VERSION
 endif
 
-ifeq ($(ENABLE_WEBKIT2),yes)
-HAVE_WEBKIT2_TLS_API := $(shell pkg-config --exists 'webkit2gtk-3.0 >= 2.3.1' && echo yes)
-ifeq ($(HAVE_WEBKIT2_TLS_API),yes)
+HAVE_TLS_API := $(shell pkg-config --exists 'webkit2gtk-3.0 >= 2.3.1' && echo yes)
+ifeq ($(HAVE_TLS_API),yes)
 REQ_PKGS += gnutls
-endif
 endif
 
 PKG_CFLAGS := $(shell pkg-config --cflags $(REQ_PKGS))
@@ -111,17 +85,6 @@ HEADERS := \
     variables.h \
     webkit.h \
     3p/async-queue-source/rb-async-queue-watch.h
-
-ifneq ($(ENABLE_WEBKIT2),yes)
-SOURCES += \
-    cookie-jar.c \
-    scheme-request.c \
-    soup.c
-HEADERS += \
-    cookie-jar.h \
-    scheme-request.h \
-    soup.h
-endif
 
 SRC  = $(addprefix src/,$(SOURCES))
 HEAD = $(addprefix src/,$(HEADERS))
