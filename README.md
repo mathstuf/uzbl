@@ -121,16 +121,6 @@ browsers. For more, see [its documentation](README.browser.md).
 A flavor of `uzbl` built on top of `uzbl-browser` which adds tabbed browsing.
 For more, see [its documentation](README.tabbed.md).
 
-#### WebKit1 vs. WebKit2
-
-Multiple commands and variables mention that they are not supported in WebKit2.
-WebKit2 changes many things compared to WebKit1, some of which impact `uzbl`
-greatly. It *works*, but many of the core features are not supported (cookie
-management, the `scroll` command, HTML5 database control, injecting JavaScript
-into the page, and more). As such, using WebKit2 is not recommended for
-day-to-day usage currently. For a list of what is missing, see [this
-bug](https://bugs.webkit.org/show_bug.cgi?id=113663).
-
 ### COMMAND SYNTAX
 
 `Uzbl` will read commands via standard input, named FIFO pipe (once `fifo_dir`
@@ -178,9 +168,8 @@ as `KEY` and `many args` as `VALUE`.
     requests are made, but JavaScript can still run.
 * `uri {URI}`
   - Tell `uzbl` to navigate to the given URI.
-* `download <URI> [DESTINATION]`
-  - Tell WebKit to download a URI. In WebKit2, the destination parameter is
-    ignored (the `download_handler` mechanism is used instead).
+* `download <URI>
+  - Tell WebKit to download a URI.
 
 #### Page
 
@@ -193,38 +182,15 @@ as `KEY` and `many args` as `VALUE`.
     + `error_html <URI> <BASE_URI> <CONTENT>`
       * Load content an error page (which does not appear in the forward/back
         list) at the given URI with the given
-* `save [FORMAT] [PATH]` (WebKit2 >= 1.9.90)
+* `save [FORMAT] [PATH]` (WebKit >= 1.9.90)
   - Save the current page to a file in the given format. If no path is given,
     WebKit determines the output path. Currently supported formats include:
     mhtml (the default).
-* `frame <list|focus|reload|stop|dump|inject|get|set> [NAME]` (WebKit1 only)
-  - Operate on frames in the current page. If not name is given, the `_current`
-    frame is used. Supported subcommands include:
-    + `list` (Unimplemented)
-      * Returns a JSON object representing the of frames in the frame.
-    + `focus` (Unimplemented)
-      * Give focus to the frame.
-    + `reload`
-      * Reload the frame.
-    + `stop`
-      * Stop loading the frame.
-    + `save` (Unimplemented)
-      * Save the content frame.
-    + `load` (Unimplemented)
-      * Load content into the frame.
-    + `get <VARIABLE>` (Unimplemented)
-      * Get information about a frame.
-    + `set <VARIABLE> <VALUE>` (Unimplemented)
-      * Set information about a frame.
 
 #### Cookie
 
 * `cookie <add|delete|clear>`
   - Manage cookies in `uzbl`. The subcommands work as follows:
-    + `add <HOST> <PATH> <NAME> <VALUE> <SCHEME> <EXPIRATION>` (WebKit1 only)
-      * Manually add a cookie.
-    + `delete <DOMAIN> <PATH> <NAME> <VALUE>` (WebKit1 only)
-      * Delete a cookie from the cookie jar.
     + `clear all`
       * Delete all cookies.
     + `clear domain [DOMAIN...]`
@@ -232,7 +198,7 @@ as `KEY` and `many args` as `VALUE`.
 
 #### Display
 
-* `scroll <horizontal|vertical> <VALUE>` (WebKit2 broken)
+* `scroll <horizontal|vertical> <VALUE>` (broken)
   - Scroll either the horizontal or vertical scrollbar for the page. The value
     may be one of:
     + `begin`
@@ -262,41 +228,25 @@ as `KEY` and `many args` as `VALUE`.
     policy. If the size is `maximized`, the `uzbl` window will try to maximize
     itself. Otherwise, the size is parsed using the
     `WIDTHxHEIGHT±XOFFSET±YOFFSET` pattern.
-* `snapshot <PATH> <FORMAT> <REGION> [FLAG...]` (WebKit2 >= 1.11.92 or WebKit1 >= 1.9.6)
+* `snapshot <PATH> <FORMAT> <REGION> [FLAG...]` (WebKit >= 1.11.92)
   - Saves the current page as an image to the given path. Currently supported
     formats include: `png`. Acceptable regions include:
     + `visible`
       * Only includes the regions of the page which are currently visible.
-    + `document` (WebKit2 only)
+    + `document`
       * Includes the entire page.
 
     Accepted flags include:
-    + `selection` (WebKit2 only)
+    + `selection`
       * Include the selection highlighting in the image.
 
 #### Content
 
 * `plugin <COMMAND>`
   - Exposes control of plugin-related information. Supported subcommands include:
-    + `search <DIRECTORY>` (WebKit2 only)
+    + `search <DIRECTORY>`
       * Add the directory to the search path for plugins.
-    + `refresh` (WebKit1 only)
-      * Refresh the plugin database.
-    + `toggle [NAME...]` (WebKit1 only)
-      * Toggle whether the given plugins are enabled (or all if none are given).
-* `remove_all_db` (WebKit1 only)
-  - Remove all web databases.
-* `spell <COMMAND>` (WebKit1 >= 1.5.1)
-  - Use WebKit's spell check logic. Supported subcommands include:
-    + `ignore [WORD...]`
-      * Add the given words to the list of words to ignore.
-    + `learn [WORD...]`
-      * Teaches that the given words are spelled correctly.
-    + `autocorrect <WORD>`
-      * Returns the word as autocorrected by the checker.
-    + `guesses <WORD>`
-      * Returns the guesses for the word given by the checker as a JSON list.
-* `cache <COMMAND>` (WebKit2 only)
+* `cache <COMMAND>`
   - Controls the cache used by WebKit. Supported subcommands include:
     + `clear`
       * Clears all cache.
@@ -312,12 +262,11 @@ as `KEY` and `many args` as `VALUE`.
   - Controls CSS settings in web pages. Supported subcommands include:
     + `add <URI> <LOCATION> [BASE_URI] [WHITELIST] [BLACKLIST]`
       * Adds a CSS file to the given page applied at the given location in the
-        page. WebKit1 only uses the URI parameter and only supports one extra
-        stylesheet at a time. For WebKit2, the location can be one of `all` or
-        `top_only`. For `top_only`, child frames do not use the stylesheet. The
-        base URI, if given, is used during CSS processing. The white and
-        blacklists are comma-separated URI patterns which must match the format
-        `protocol://host/path` and may use `*` as a wildcard.
+        page. The location can be one of `all` or `top_only`. For `top_only`,
+        child frames do not use the stylesheet. The base URI, if given, is used
+        during CSS processing. The white and blacklists are comma-separated URI
+        patterns which must match the format `protocol://host/path` and may use
+        `*` as a wildcard.
     + `clear`
       Clears all user-supplied stylesheets.
 * `scheme <SCHEME> {COMMAND}`
@@ -350,9 +299,9 @@ as `KEY` and `many args` as `VALUE`.
             document is reached.
         - `case_insensitive`
           + If set, searches are case-insensitive.
-        - `word_start` (WebKit2 only)
+        - `word_start`
           + If set, searches will only match the start of words.
-        - `camel_case` (WebKit2 only)
+        - `camel_case`
           + If set, capital letters in the middle of words are considered the
             start of a word.
     + `options`
@@ -374,15 +323,13 @@ as `KEY` and `many args` as `VALUE`.
     + `prev`
       * As `next`, but searches in the opposite direction from the last `find`
         or `rfind` command.
-* `security <SCHEME> <COMMAND> <OPTION>` (WebKit2 or WebKit2 >= 1.11.1)
+* `security <SCHEME> <COMMAND> <OPTION>` (WebKit >= 1.11.1)
   - Controls security options for a scheme. Recognized commands include:
     + `get`
       * Returns `true` if the option is set for the scheme, `false` otherwise.
     + `set`
-      * Sets the option for the scheme.With WebKit2, be careful setting options
-        since they cannot (currently) be unset.
-    + `unset` (WebKit1 only)
-      * Unsets the option for the scheme.
+      * Sets the option for the scheme. Be careful setting options since they
+        cannot (currently) be unset.
 
     Supported options include ("scheme" here is used as "content referenced
     with this scheme"):
@@ -400,7 +347,7 @@ as `KEY` and `many args` as `VALUE`.
       * If set, the scheme is allowed to make cross-origin resource sharing.
     + `empty_document`
       * If set, the scheme is allowed to be committed synchronously.
-* `dns <COMMAND>` (WebKit2 only)
+* `dns <COMMAND>`
   - Manage DNS settings. Supported subcommands include:
     + `fetch <HOSTNAME>`
       * Prefetch the DNS entry for the given hostname.
@@ -410,16 +357,10 @@ as `KEY` and `many args` as `VALUE`.
       * Show the web inspector.
     + `close`
       * Close the web inspector.
-    + `attach` (WebKit2 only)
+    + `attach`
       * Request that the inspector be attached to the current page.
-    + `detach` (WebKit2 only)
+    + `detach`
       * Request that the inspector be detached to the current page.
-    + `coord <X> <Y>` (WebKit1 only)
-      * Inspect the page at the given coordinate. The coordinate is relative to
-        the current viewport.
-    + `node <NODE>` (WebKit1 >= 1.3.17) (Unimplemented)
-      * Inspect the node which matches the given CSS selector string. If
-        multiple nodes match, the first one is used.
 
 #### Execution
 
@@ -433,9 +374,7 @@ as `KEY` and `many args` as `VALUE`.
     + `clean`
       * Create a new context just for this command. This is the most secure
         option and should be preferred where possible.
-    + `frame` (WebKit1 only)
-      * Run the code in the current frame's context.
-    + `page` (WebKit2 broken)
+    + `page` (broken)
       * Run the code in the current page's context. Be careful putting code
         into this context since anything in here may be hijacked by a malicious
         webpage. The context is cleared on each page load.
@@ -551,36 +490,26 @@ variables are treated as strings.
     URI. It is passed the URI as an extra argument. If the command returns a
     string with the first line containing only the word `USED`, the navigation
     is ignored.
-* `request_handler` (command) (no default) (synchronous in WebKit1)
+* `request_handler` (command) (no default)
   - The command to use when a new network request is about to be initiated. The
     URI is passed as an argument. If the command returns a non-empty string,
     the first line of the result is used as the new URI. To cancel a request,
-    use the URI `about:blank`. In WebKit2, `IGNORE` and `DOWNLOAD` may be used.
-  - NOTE: Do *not* use `request` in WebKit1 as this is called synchronously and
-    will just pause `uzbl-core` until the `request` timeout occurs.
-* `download_handler` (command) (no default) (synchronous in WebKit1)
+    use the URI `about:blank`. `IGNORE` and `DOWNLOAD` may be used.
+* `download_handler` (command) (no default)
   - The command to use when determining where to save a downloaded file. It is
     passed the URI, suggested filename, content type, and total size as
     arguments. If a destination is known, it is passed as well. The result is
     used as the final destination. If it is empty, the download is cancelled.
-  - NOTE: Do *not* use `request` in WebKit1 as this is called synchronously and
-    will just pause `uzbl-core` until the `request` timeout occurs.
-* `mime_handler` (command) (no default) (WebKit1 only)
-  - The command to use when determining what to do with content based on its
-    mime type. It is passed the mime type and disposition as arguments.
-* `authentication_handler` (command) (no default) (WebKit1 only)
+* `authentication_handler` (command) (no default) (WebKit >= 2.1.4)
   - The command to use when requesting authentication.
 * `permission_handler` (command) (no default)
   - The command to use when WebKit requesting permission for an action.
-* `tls_error_handler` (command) (no default) (WebKit2 >= 2.3.1)
+* `tls_error_handler` (command) (no default) (WebKit >= 2.3.1)
   - The command to use when a TLS error occurs. The handler may return `ALLOW`
     to ignore the TLS error for the session.
 * `shell_cmd` (string) (default: `sh -c`)
   - The command to use as a shell. This is used in the `spawn_sh` and `sync_sh`
     commands as well as `@()@` expansion.
-* `enable_builtin_auth` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, WebKit will handle HTTP authentication dialogs. WebKit2 acts
-    as if this were always `1`.
 
 #### Window
 
@@ -592,9 +521,6 @@ variables are treated as strings.
 * `window_role` (string) (no default)
   - Sets the role of the window. This is used to hint to the window manager how
     to handle the window.
-* `auto_resize_window` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, WebKit will try to honor JavaScript moving the window. May
-    still be blocked by window manager policy.
 
 #### UI
 
@@ -615,12 +541,12 @@ variables are treated as strings.
   - `The title to use when no status bar is shown.
 * `title_format_short` (string (default: `@TITLE - Uzbl browser <@NAME>`)
   - `The title to use when the status bar is shown.
-* `enable_compositing_debugging` (boolean) (default: 0) (WebKit2 only)
+* `enable_compositing_debugging` (boolean) (default: 0)
   - If non-zero, draw borders  when using accelerated compositing.
 
 #### Customization
 
-* `default_context_menu` (boolean) (default: 0) (WebKit2 or WebKit2 >= 1.9.0)
+* `default_context_menu` (boolean) (default: 0) (WebKit >= 1.9.0)
   - If non-zero, display the default context menu, ignoring any custom menu
     items.
 
@@ -631,21 +557,6 @@ variables are treated as strings.
 
 #### Network
 
-* `proxy_url` (string) (no default) (WebKit1 only)
-  - If set, the value is used as a network proxy.
-* `max_conns` (integer) (default: 100) (WebKit1 only)
-  - The maximum number of connections to initialize total.
-* `max_conns_host` (integer) (default: 6) (WebKit1 only)
-  - The maximum number of connections to use per host.
-* `http_debug` (enumeration) (default: `none`) (WebKit1 only)
-  - Debugging level for HTTP connections. Acceptable values include:
-    + `none`
-    + `minimal`
-    + `headers`
-    + `body`
-* `ssl_ca_file` (string) (no default) (WebKit1 only)
-  - The path to the CA certificate file in PEM format to use for trusting SSL
-    certificates. By default, the system store is used.
 * `ssl_policy` (enumeration) (default: `fail`)
   - The policy to use for handling SSL failures. Acceptable values include:
     + `ignore`
@@ -669,17 +580,11 @@ variables are treated as strings.
 * `permissive` (boolean) (default: 0)
   - If non-zero, permission will be granted by default (if `enable_private` is
     0) if `permission_handler` is either not set or returns an invalid value.
-* `enable_universal_file_access` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, content accessed via the `file` scheme will be allowed to
-    access all other content.
-* `enable_cross_file_access` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, content accessed via the `file` scheme will be allowed to
-    access other `file` content.
 * `enable_hyperlink_auditing` (boolean) (default: 0)
   - If non-zero, `<a ping>` will be allowed in WebKit.
-* `enable_xss_auditing` (boolean) (default: 0) (WebKit2 only)
+* `enable_xss_auditing` (boolean) (default: 0)
   - If non-zero, WebKit will attempt to filter reflecting XSS attacks.
-* `cookie_policy` (enumeration) (default: `always`) (reading the value is broken in WebKit2)
+* `cookie_policy` (enumeration) (default: `always`) (reading is broken)
   - Sets the cookie policy for WebKit. Acceptable values include:
     + `always`
     + `never`
@@ -687,21 +592,6 @@ variables are treated as strings.
       * Blocks third-party cookies.
 * `enable_dns_prefetch` (boolean) (default: 1) (WebKit >= 1.3.13)
   - If non-zero, WebKit will prefetch domain names while browsing.
-* `display_insecure_content` (boolean) (default: 1) (WebKit1 >= 1.11.2)
-  - If non-zero, HTTPS content will be allowed to display content served over
-    HTTP.
-* `run_insecure_content` (boolean) (default: 1) (WebKit1 >= 1.11.2)
-  - If non-zero, HTTPS content will be allowed to run content served over HTTP.
-* `maintain_history` (boolean) (default: 1) (WebKit1 only)
-  - If non-zero, WebKit will maintain a back/forward list.
-
-#### Inspector
-
-* `profile_js` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, the inspector will profile running JavaScript. Profiles are
-    available as the `Console.profiles` variable in JavaScript.
-* `profile_timeline` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, the inspector will profile network activity.
 
 #### Page
 
@@ -712,14 +602,13 @@ variables are treated as strings.
     does not update the useragent in JavaScript as seen by the
     `navigator.userAgent` variable.
 * `accept_languages` (string) (no default)
-  - The list of languages to send with the `Accept-Language` HTTP header. In
-    WebKit1, if set to `auto`, the list will be constructed from the system.
+  - The list of languages to send with the `Accept-Language` HTTP header.
 * `zoom_level` (double) (default: 1.0)
   - The current zoom level of the page.
 * `zoom_step` (double) (default: 0.1)
   - The amount to step by default with the `zoom in` and `zoom out` commands.
     Must be greater than 0.
-* `zoom_text_only` (boolean) (default: 1 in WebKit1; 0 in WebKit2) (WebKit2 >= 1.7.91 or WebKit1)
+* `zoom_text_only` (boolean) (default: 0) (WebKit >= 1.7.91)
   - If non-zero, only text will be zoomed on a page.
 * `caret_browsing` (boolean) (default: 0)
   - If non-zero, pages may be navigated using the arrows to move a cursor
@@ -735,21 +624,8 @@ variables are treated as strings.
       * Render content as a web page.
     + `source`
       * Display the source of a page as plain text.
-* `transparent` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, the web page will have a transparent background rather than a
-    solid color.
-* `window_view_mode` (enumeration) (default: `windowed`) (WebKit1 >= 1.3.4)
-  - Sets the value web pages will see for how the content is presented to the
-    user. Acceptable values include:
-    + `windowed`
-    + `floating`
-    + `fullscreen`
-    + `maximized`
-    + `minimized`
 * `enable_fullscreen` (boolean) (default: 0) (WebKit >= 1.3.4)
   - If non-zero, Mozilla-style JavaScript APIs will be enabled for JavaScript.
-* `editable` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, web pages will be editable similar to a WYSIWYG editor.
 
 #### JavaScript
 
@@ -758,30 +634,22 @@ variables are treated as strings.
 * `javascript_windows` (boolean) (default: 0)
   - If non-zero, JavaScript in a page will be allowed to open windows without
     user intervention.
-* `javascript_modal_dialogs` (boolean) (default: 0) (WebKit2 only)
+* `javascript_modal_dialogs` (boolean) (default: 0)
   - If non-zero, JavaScript in a page will be allowed to create modal windows
     via the `window.showModalDialog` API.
-* `javascript_dom_paste` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, JavaScript in a page will be able to paste content from the
-    system clipboard.
 * `javascript_clipboard` (boolean) (default: 0) (WebKit >= 1.3.0)
   - If non-zero, JavaScript in a page will be able to access content in the
     system clipboard directly.
-* `javascript_console_to_stdout` (boolean) (default: 0) (WebKit2 >= 2.1.1)
+* `javascript_console_to_stdout` (boolean) (default: 0) (WebKit >= 2.1.1)
   - If non-zero, JavaScript's console output will be put on stdout as well.
 
 #### Image
 
 * `autoload_images` (boolean) (default: 1)
   - If non-zero, images will automatically be loaded.
-* `autoload_icons` (boolean) (default: 0) (WebKit2 only)
+* `autoload_icons` (boolean) (default: 0)
   - If non-zero, favicons will be loaded regardless of the `autoload_images`
     variable.
-* `autoshrink_images` (boolean) (default: 1) (WebKit1 only)
-  - If non-zero, stand-alone images will be resized to fit within the window.
-* `use_image_orientation` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, image orientation tags will be used to reorient images once
-    loaded.
 
 #### Spell checking
 
@@ -795,14 +663,8 @@ variables are treated as strings.
 
 * `resizable_text_areas` (boolean) (default: 1)
   - If non-zero, text area form elements will be resizable with a drag handle.
-* `enable_spatial_navigation` (boolean) (default: 0) (WebKit1 or WebKit2 >= 2.3.3)
+* `enable_spatial_navigation` (boolean) (default: 0) (WebKit >= 2.3.3)
   - If non-zero, the arrow keys will navigate between form elements.
-* `editing_behavior` (enumeration) (default: `unix`) (WebKit1 only)
-  - Sets the behavior of text area elements to behave closer to native widgets
-    on different platforms. Acceptable values include:
-    + `mac`
-    + `unix`
-    + `windows`
 * `enable_tab_cycle` (boolean) (default: 1)
   - If non-zero, the tab key will navigate between form elements, otherwise it
     will always be interpreted as an insertion of a tab character.
@@ -815,8 +677,6 @@ variables are treated as strings.
   - If non-empty, the value is used to override any other encoding used for the
     page. Causes the page to be reloaded. Set to the empty string to clear any
     custom encoding.
-* `enforce_96_dpi` (boolean) (default: 0) (WebKit1 only)
-  - If non-zero, the display will be assumed to be 96-dpi.
 
 #### Font
 
@@ -832,18 +692,13 @@ variables are treated as strings.
   - The font family to use by default for any cursive text.
 * `fantasy_font_family` (string) (default: `serif`)
   - The font family to use by default for any fantasy text.
-* `pictograph_font_family` (string) (default: `serif`) (WebKit2 only)
+* `pictograph_font_family` (string) (default: `serif`)
   - The font family to use by default for any pictographic text.
 
 #### Font size
 
-Note: In WebKit2, font sizes are in pixels, whereas WebKit1 uses points.
+Note: font sizes are in pixels.
 
-* `minimum_font_size` (integer) (default: 5) (WebKit1 only)
-  - The minimum font size to use for text.
-* `minimum_logical_font_size` (integer) (default: 5) (WebKit1 only)
-  - The minimum logical font size to use for text. This is the size after any
-    transforms or "smaller" CSS specifications.
 * `font_size` (integer) (default: 12)
   - The default font size for text.
 * `monospace_size` (integer) (default: 10)
@@ -860,10 +715,7 @@ Note: In WebKit2, font sizes are in pixels, whereas WebKit1 uses points.
   - If non-zero, WebGL will be enabled.
 * `enable_webaudio` (boolean) (default: 0) (WebKit >= 1.7.5)
   - If non-zero, the WebAudio API will be enabled.
-* `enable_3d_acceleration` (boolean) (default: 0) (WebKit1 >= 1.7.90)
-  - If non-zero, the GPU will be used to render animations and 3D CSS
-    transforms.
-* `enable_2d_acceleration` (boolean) (default: 0) (WebKit2 >= 2.1.1)
+* `enable_2d_acceleration` (boolean) (default: 0) (WebKit >= 2.1.1)
   - If non-zero, 2D canvas operations will be accelerated by hardware.
 * `enable_inline_media` (boolean) (default: 1) (WebKit >= 1.9.3)
   - If non-zero, media playback within a page will be enabled, otherwise, only
@@ -871,9 +723,7 @@ Note: In WebKit2, font sizes are in pixels, whereas WebKit1 uses points.
 * `require_click_to_play` (boolean) (default: 0) (WebKit >= 1.9.3)
   - If non-zero, media may automatically play on a page, otherwise a user
     interaction is required to even load the media.
-* `enable_css_shaders` (boolean) (default: 0) (WebKit1 >= 1.11.1 and < 2.3.5)
-  - If non-zero, CSS shaders will be enabled.
-* `enable_media_stream` (boolean) (default: 0) (WebKit1 >= 1.11.1 or WebKit2 >= 2.3.2)
+* `enable_media_stream` (boolean) (default: 0) (WebKit >= 2.3.2)
   - If non-zero, the Media Stream API will be enabled.
 * `enable_media_source` (boolean) (default: 0) (WebKit >= 2.3.3)
   - If non-zero, the MediaSource API will be enabled.
@@ -892,19 +742,10 @@ Note: In WebKit2, font sizes are in pixels, whereas WebKit1 uses points.
 * `enable_offline_app_cache` (boolean) (default: 1)
   - If non-zero, HTML5 web application cache support will be enabled. This
     allows web applications to run locally without a network connection.
-* `app_cache_size` (size) (default: [no quota]) (WebKit1 >= 1.3.13)
-  - The maximum size (in bytes) of the local application cache.
-* `web_database_directory` (string) (default: `$XDG_DATA_HOME/webkit/databases`) (WebKit1 only)
-  - Where to store web databases.
-* `web_database_quota` (size) (default: 5242880) (WebKit1 only)
-  - The maximum size (in bytes) of web databases. (Note: It is unclear if this
-    is a total quota or per-database quota.)
-* `local_storage_path` (string) (default: `$XDG_DATA_HOME/webkit/databases`) (WebKit1 >= 1.5.2)
-  - Where to store HTML5 `localStorage` data.
-* `disk_cache_directory` (string) (no default) (WebKit2 >= 1.11.92)
+* `disk_cache_directory` (string) (no default) (WebKit >= 1.11.92)
   - Where to store cache files.. Must be set before loading any pages to have
     an effect.
-* `web_extensions_directory` (string) (no default) (WebKit2 only)
+* `web_extensions_directory` (string) (no default)
   - Where to look for web extension libraries. Must be set before loading any
     pages.
 
@@ -921,15 +762,11 @@ they are written as comments.
 
 * `inspected_uri` (string) (WebKit >= 1.3.17)
   - The URI which the inspector is currently focusing on.
-* `current_encoding` (string) (WebKit1 only)
-  - The encoding of the current page.
 * `geometry` (string)
   - A string giving the current window geometry of `uzbl` in
     `<width>x<height>+<xoffset>+<yoffset>` format.
-* `plugin_list` (string) (WebKit2 >= 1.11.4 or WebKit1 >= 1.3.8) (WebKit2 broken)
+* `plugin_list` (string) (WebKit >= 1.11.4) (broken)
   - A JSON-formatted list describing loaded plugins.
-* `app_cache_directory` (string) (WebKit1 >= 1.3.13)
-  - Currently always `$XDG_CACHE_HOME/webkitgtk/applications`.
 * `uri` (string)
   - The current top-level URI of the view.
 * `embedded` (boolean)
@@ -941,12 +778,10 @@ they are written as comments.
   - The minor version of WebKit at runtime.
 * `WEBKIT_MICRO` (integer)
   - The micro version of WebKit at runtime.
-* `WEBKIT_UA_MAJOR` (integer) (WebKit2 broken)
+* `WEBKIT_UA_MAJOR` (integer) (broken)
   - The major useragent version of WebKit at compile time.
-* `WEBKIT_UA_MINOR` (integer) (WebKit2 broken)
+* `WEBKIT_UA_MINOR` (integer) (broken)
   - The minor useragent version of WebKit at compile time.
-* `HAS_WEBKIT2` (boolean)
-  - If non-zero, `uzbl` is using WebKit2.
 * `ARCH_UZBL` (string)
   - The architecture `uzbl` is compiled for.
 * `COMMIT` (string)
@@ -1048,8 +883,6 @@ commands as `[object Object]`, not JavaScript objects.
 #### Accessing the web page
 
 Currently, access to the webpage is not available through the `uzbl` context.
-This is currently impossible with WebKit2 (since even `uzbl` does not have
-access to the page's JavaScript context) and crashes WebKit1.
 
 ### TITLE AND STATUS BAR EVALUATION
 
@@ -1114,8 +947,8 @@ the following environment variables:
   - Set if the `enable_private` variable is non-zero, unset otherwise.
 
 Handler scripts (`download_handler`, `scheme_handler`, `request_handler`,
-`mime_handler`, `authentication_handler`, `permission_handler`, and
-`tls_error_handler`) are called with special arguments:
+`authentication_handler`, `permission_handler`, and `tls_error_handler`) are
+called with special arguments:
 
 * download handler
 
@@ -1165,16 +998,9 @@ Handler scripts (`download_handler`, `scheme_handler`, `request_handler`,
       WebKit knows how to display the data given its MIME type (`unknown` means
       that `uzbl` was unable to determine the answer).
   3. `frame`
-    - The name of the frame requesting the resource (unavailable in WebKit2).
+    - The name of the frame requesting the resource.
   4. `redirect`
-    - Whether the request is a redirect or not (`unknown` in WebKit2)
-
-* mime handler
-
-  1. `mime_type`
-    - The mime type of the resource.
-  2. `disposition`
-    - The disposition of the resource. Empty if unknown.
+    - Whether the request is a redirect or not.
 
 * authentication handler
 
@@ -1312,11 +1138,9 @@ uzbl itself and will be emitted based on what is happening within uzbl-core.
 * `LOAD_FINISH <URI>`
   - Sent when a page navigation is complete. All of the top-level resources
     have been retrieved by this point.
-* `TLS_ERROR <HOST> <FLAGS> <INFO>` (WebKit2 >= 2.3.1)
+* `TLS_ERROR <HOST> <FLAGS> <INFO>` (WebKit >= 2.3.1)
   - The event sent if a `tls_error_handler` is not valid. See its documentation
     for the argument formats.
-* `REQUEST_QUEUED <URI>` (WebKit1 only)
-  - Sent when a request is queued for the network.
 * `REQUEST_STARTING <URI>`
   - Sent when a request has been sent to the server.
 * `REQUEST_FINISHED <URI>`
@@ -1369,11 +1193,7 @@ uzbl itself and will be emitted based on what is happening within uzbl-core.
 
 ##### Page
 
-* `BLUR_ELEMENT <NAME>` (WebKit1 only)
-  - Sent when an element loses focus.
-* `FOCUS_ELEMENT <NAME>` (WebKit1 only)
-  - Sent when an element gains focus.
-* `INSECURE_CONTENT <REASON>` (WebKit2 >= 1.11.4)
+* `INSECURE_CONTENT <REASON>` (WebKit >= 1.11.4)
   - Sent when insecure content is used on a secure page.
 * `LINK_HOVER <URI> <TITLE>`
    - Sent when a link is hovered over using the mouse.
@@ -1392,9 +1212,9 @@ uzbl itself and will be emitted based on what is happening within uzbl-core.
   - Similar to `SCROLL_HORIZ`, but for the vertical scrollbar.
 * `TITLE_CHANGED <TITLE>`
   - Sent when the page title changes.
-* `WEB_PROCESS_CRASHED` (WebKit2 only)
+* `WEB_PROCESS_CRASHED`
   - Sent when the main rendering process crashed.
-* `WEB_PROCESS_STARTED` (WebKit2 only)
+* `WEB_PROCESS_STARTED`
   - Sent when a new web process is started.
 
 ##### Window
