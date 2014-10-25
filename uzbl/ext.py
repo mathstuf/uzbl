@@ -33,8 +33,10 @@ class PluginMeta(type):
         return self._get_instance(owner)
 
 
-class BasePlugin(object, metaclass=PluginMeta):
+class BasePlugin(object):
     """Base class for all uzbl plugins"""
+
+    __metaclass__ = PluginMeta
 
 
 class PerInstancePlugin(BasePlugin):

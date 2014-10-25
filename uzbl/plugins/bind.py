@@ -177,7 +177,7 @@ def split_glob(glob):
 class Bind(object):
 
     # unique id generator
-    nextid = count().__next__
+    nextid = count()
 
     def __init__(self, glob, handler, *args, **kargs):
         self.is_callable = isinstance(handler, collections.Callable)
@@ -203,7 +203,7 @@ class Bind(object):
         self.glob = glob
 
         # Assign unique id.
-        self.bid = self.nextid()
+        self.bid = self.nextid.next()
 
         self.split = split = FIND_PROMPTS(glob)
         self.prompts = []

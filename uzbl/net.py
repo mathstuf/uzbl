@@ -101,7 +101,7 @@ class Protocol(asynchat.async_chat):
         self.buffer += data
 
     def found_terminator(self):
-        val = self.buffer.decode('utf-8')
+        val = str(self.buffer)
         del self.buffer[:]
         self.target.parse_msg(val)
 

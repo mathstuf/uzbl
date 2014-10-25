@@ -29,7 +29,7 @@ export XDG_CONFIG_HOME
 PATH="$( pwd )/sandbox/usr/bin:$PATH"
 export PATH
 
-PYTHONLIB=$( python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib(prefix="/usr"))' )
+PYTHONLIB=$( python2 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib(prefix="/usr"))' )
 
 UZBL_PLUGIN_PATH="$( pwd )/sandbox/$PYTHONLIB/uzbl/plugins"
 export UZBL_PLUGIN_PATH
