@@ -53,6 +53,12 @@ ifeq ($(HAVE_LIBSOUP_VERSION),yes)
 CPPFLAGS += -DHAVE_LIBSOUP_CHECK_VERSION
 endif
 
+HAVE_REQS := $(shell pkg-config --exists $(REQ_PKGS) && echo yes)
+
+ifneq ($(HAVE_REQS),yes)
+$(error Missing packages! Please make sure you have $(REQ_PKGS) available)
+endif
+
 PKG_CFLAGS := $(shell pkg-config --cflags $(REQ_PKGS))
 
 LDLIBS := $(shell pkg-config --libs $(REQ_PKGS) x11)
